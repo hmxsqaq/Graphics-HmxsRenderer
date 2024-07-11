@@ -3,12 +3,9 @@
 int main() {
     Win32Wnd window(L"SampleWindowClass", L"Sample Window");
 
-    window.Create(100, 100);
-
-    MSG msg = {};
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+    window.CreateWnd(500, 500);
+    while (window.is_running_) {
+        Win32Wnd::HandleMsg();
     }
     return 0;
 }

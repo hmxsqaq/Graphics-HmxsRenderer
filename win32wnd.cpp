@@ -1,15 +1,15 @@
 #include "win32wnd.h"
 
 Win32Wnd::Win32Wnd(std::wstring class_name, std::wstring window_title)
-    : h_instance_(GetModuleHandle(nullptr)), class_name_(std::move(class_name)), window_title_(std::move(window_title)), hwnd_(nullptr) {
+    : is_running_(false), class_name_(std::move(class_name)), window_title_(std::move(window_title)), h_instance_(GetModuleHandle(nullptr)), hwnd_(nullptr) {
+    InitWnd();
 }
 
 Win32Wnd::~Win32Wnd() {
     if (hwnd_) DestroyWindow(hwnd_);
 }
 
-void Win32Wnd::Create(int width, int height) {
-    RegisterWndClass();
+void Win32Wnd::CreateWnd(int width, int height) {
     // Adjust the window size to fit the client area
     RECT rect = {0, 0, width, height};
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
@@ -28,6 +28,19 @@ void Win32Wnd::Create(int width, int height) {
     assert(hwnd_ != nullptr);
     ShowWindow(hwnd_, SW_SHOW);
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+}
+
+void Win32Wnd::HandleMsg() {
+    MSG msg = {};
+    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+
+void Win32Wnd::InitWnd() {
+    RegisterWndClass();
+    is_running_ = true;
 }
 
 void Win32Wnd::RegisterWndClass() const {
@@ -49,12 +62,11 @@ void Win32Wnd::RegisterWndClass() const {
 LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     auto* wnd = reinterpret_cast<Win32Wnd*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-    if (!wnd) return DefWindowProc(hWnd, uMsg, wParam, lParam);
-    switch (uMsg) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
+    if (wnd == nullptr) return DefWindowProc(hWnd, uMsg, wParam, lParam);
+
+    if (uMsg == WM_DESTROY) {
+        wnd->is_running_ = false;
         return 0;
-        default:
-            return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }

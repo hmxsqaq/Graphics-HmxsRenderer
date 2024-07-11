@@ -10,13 +10,18 @@ public:
     Win32Wnd(std::wstring class_name, std::wstring window_title);
     ~Win32Wnd();
 
-    void Create(int width, int height);
+    void CreateWnd(int width, int height);
+
+    static void HandleMsg();
+
+    bool is_running_;
 private:
-    HINSTANCE h_instance_;
     std::wstring class_name_;
     std::wstring window_title_;
+    HINSTANCE h_instance_;
     HWND hwnd_;
 
+    void InitWnd();
     void RegisterWndClass() const;
     static LRESULT CALLBACK ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
