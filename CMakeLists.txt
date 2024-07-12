@@ -4,7 +4,8 @@ project(HmxsRenderer)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(HmxsRenderer main.cpp
-        win32wnd.cpp
-        win32wnd.h)
+        win32_wnd.cpp
+        win32_wnd.h
+        color.h)
 
 set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)

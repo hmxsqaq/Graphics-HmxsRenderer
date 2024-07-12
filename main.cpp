@@ -1,10 +1,10 @@
-#include "win32wnd.h"
+#include "win32_wnd.h"
 
 int main() {
-    Win32Wnd window(L"SampleWindowClass", L"Sample Window");
+    Win32Wnd window("Hmxs", "HmxsRenderer");
 
-    window.CreateWnd(500, 500);
-    while (window.is_running_) {
+    window.Open(500, 500);
+    while (!window.ShouldShutdown()) {
         Win32Wnd::HandleMsg();
     }
     return 0;
