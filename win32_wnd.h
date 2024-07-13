@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <string>
 #include <cassert>
+#include "color_buffer.h"
 
 class Win32Wnd {
 public:
@@ -11,14 +12,15 @@ public:
     ~Win32Wnd();
 
     void Open(int width, int height);
+    void Draw(const ColorBuffer &buffer) const;
     static void HandleMsg();
-    [[nodiscard]] bool ShouldShutdown() const { return should_shutdown_; }
+    [[nodiscard]] bool IsRunning() const { return is_running_; }
 private:
     void RegisterWndClass() const;
-
     void CreateWnd();
     void CreateMemoryDC();
     void CreateDeviceIndependentBitmap();
+
     static LRESULT CALLBACK ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     LPCSTR class_name_;
@@ -27,8 +29,9 @@ private:
     HINSTANCE hinstance_;
     HWND hwnd_;
     HDC memory_dc_;
+    uint8_t* pixels_;
     HBITMAP d_i_bitmap_;
-    bool should_shutdown_;
+    bool is_running_;
 };
 
 #endif //WIN32WND_H

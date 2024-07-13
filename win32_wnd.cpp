@@ -1,9 +1,10 @@
 #include "win32_wnd.h"
 
+#include <algorithm>
+
 Win32Wnd::Win32Wnd(const LPCSTR& class_name, const LPCSTR& window_title)
-    : class_name_(class_name), window_title_(window_title), width_(0),
-      height_(0), hinstance_(GetModuleHandle(nullptr)), hwnd_(nullptr),
-      memory_dc_(nullptr), d_i_bitmap_(nullptr), should_shutdown_(true) {
+    : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
+      hwnd_(nullptr), memory_dc_(nullptr), pixels_(nullptr), d_i_bitmap_(nullptr), is_running_(false) {
     assert(hinstance_ != nullptr);
 }
 
@@ -19,10 +20,41 @@ void Win32Wnd::Open(const int width, const int height) {
     RegisterWndClass();
     CreateWnd();
     CreateMemoryDC();
+    CreateDeviceIndependentBitmap();
 
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)); // Store the pointer to the Win32Wnd object for ProcessMsg
     ShowWindow(hwnd_, SW_SHOW);
-    should_shutdown_ = false;
+    is_running_ = true;
+}
+
+void Win32Wnd::Draw(const ColorBuffer &buffer) const {
+    assert(buffer.BPP() == ColorBuffer::RGBA || buffer.BPP() == ColorBuffer::GRAYSCALE || buffer.BPP() == ColorBuffer::RGB);
+
+    if (buffer.BPP() == ColorBuffer::RGBA) {
+        std::copy_n(buffer.BufferPtr(), buffer.Size(), pixels_);
+    } else if (buffer.BPP() == ColorBuffer::GRAYSCALE) {
+        const int pixel_count = width_ * height_;
+        uint8_t* pixel_ptr = pixels_;
+        for (int i = 0; i < pixel_count; ++i) {
+            pixel_ptr[0] = pixel_ptr[1] = pixel_ptr[2] = buffer[i];
+            pixel_ptr[3] = 255;
+            pixel_ptr += 4;
+        }
+    } else if (buffer.BPP() == ColorBuffer::RGB) {
+        const int pixel_count = width_ * height_;
+        uint8_t* pixel_ptr = pixels_;
+        for (int i = 0; i < pixel_count; ++i) {
+            pixel_ptr[0] = buffer[i * 3];
+            pixel_ptr[1] = buffer[i * 3 + 1];
+            pixel_ptr[2] = buffer[i * 3 + 2];
+            pixel_ptr[3] = 255;
+            pixel_ptr += 4;
+        }
+    }
+
+    HDC hdc = GetDC(hwnd_);
+    BitBlt(hdc, 0, 0, width_, height_, memory_dc_, 0, 0, SRCCOPY);
+    ReleaseDC(hwnd_, hdc);
 }
 
 void Win32Wnd::HandleMsg() {
@@ -50,15 +82,16 @@ void Win32Wnd::RegisterWndClass() const {
 }
 
 void Win32Wnd::CreateWnd() {
+    DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     // Adjust the window size to fit the client area
     RECT rect = {0, 0, width_, height_};
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRect(&rect, style, FALSE);
     const int adjusted_width = rect.right - rect.left;
     const int adjusted_height = rect.bottom - rect.top;
     hwnd_ = CreateWindow(
         class_name_,
         window_title_,
-        WS_OVERLAPPEDWINDOW,
+        style,
         CW_USEDEFAULT, CW_USEDEFAULT, adjusted_width, adjusted_height,
         nullptr,
         nullptr,
@@ -83,9 +116,16 @@ void Win32Wnd::CreateDeviceIndependentBitmap() {
     bitmap_info.bmiHeader.biPlanes = 1;
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
-    d_i_bitmap_ = CreateDIBSection(memory_dc_, &bitmap_info, DIB_RGB_COLORS, nullptr, nullptr, 0);
+    d_i_bitmap_ = CreateDIBSection(
+        memory_dc_,
+        &bitmap_info,
+        DIB_RGB_COLORS,
+        reinterpret_cast<void **>(&pixels_),
+        nullptr,
+        0);
     assert(d_i_bitmap_ != nullptr);
-    SelectObject(memory_dc_, d_i_bitmap_);
+    const auto old_bitmap = static_cast<HBITMAP>(SelectObject(memory_dc_, d_i_bitmap_));
+    DeleteObject(old_bitmap);
 }
 
 LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -94,7 +134,7 @@ LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (wnd == nullptr) return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
     if (uMsg == WM_DESTROY) {
-        wnd->should_shutdown_ = true;
+        wnd->is_running_ = false;
         return 0;
     }
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
