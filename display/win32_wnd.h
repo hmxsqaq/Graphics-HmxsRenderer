@@ -4,7 +4,9 @@
 #include <windows.h>
 #include <string>
 #include <cassert>
-#include "color_buffer.h"
+#include <cstdint>
+
+#include "../core/color_buffer.h"
 
 class Win32Wnd {
 public:

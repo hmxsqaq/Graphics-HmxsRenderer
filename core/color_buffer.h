@@ -11,11 +11,12 @@ struct ColorBuffer {
 
     ColorBuffer();
     ColorBuffer(int width, int height, uint8_t bpp);
-    ColorBuffer(ColorBuffer&& other) noexcept;
+    ColorBuffer(ColorBuffer &&other) noexcept;
+
+    ColorBuffer& operator=(ColorBuffer &&other) noexcept;
 
     std::uint8_t& operator[](int index);
     std::uint8_t  operator[](int index) const;
-    ColorBuffer& operator=(ColorBuffer&& other) noexcept;
 
     void SetPixel(int x, int y, const Color &color) const;
     [[nodiscard]] Color GetPixel(int x, int y) const;

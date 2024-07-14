@@ -18,17 +18,7 @@ ColorBuffer::ColorBuffer(ColorBuffer &&other) noexcept
     other.bpp_ = 0;
 }
 
-std::uint8_t & ColorBuffer::operator[](const int index) {
-    assert(index >= 0 && index < width_ * height_ * bpp_);
-    return buffer_[index];
-}
-
-std::uint8_t ColorBuffer::operator[](const int index) const {
-    assert(index >= 0 && index < width_ * height_ * bpp_);
-    return buffer_[index];
-}
-
-ColorBuffer & ColorBuffer::operator=(ColorBuffer &&other) noexcept {
+ColorBuffer& ColorBuffer::operator=(ColorBuffer &&other) noexcept {
     if (this != &other) {
         width_ = other.width_;
         height_ = other.height_;
@@ -40,6 +30,16 @@ ColorBuffer & ColorBuffer::operator=(ColorBuffer &&other) noexcept {
         other.bpp_ = 0;
     }
     return *this;
+}
+
+std::uint8_t& ColorBuffer::operator[](const int index) {
+    assert(index >= 0 && index < width_ * height_ * bpp_);
+    return buffer_[index];
+}
+
+std::uint8_t ColorBuffer::operator[](const int index) const {
+    assert(index >= 0 && index < width_ * height_ * bpp_);
+    return buffer_[index];
 }
 
 void ColorBuffer::SetPixel(const int x, const int y, const Color &color) const {

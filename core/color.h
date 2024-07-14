@@ -20,7 +20,7 @@ struct Color {
     std::array<std::uint8_t, 4> bgra;
 };
 
-inline std::ostream& operator<<(std::ostream& out, const Color& color) {
+inline std::ostream& operator<<(std::ostream &out, const Color &color) {
     out << "B:" << static_cast<int>(color.B()) << " "
         << "G:" << static_cast<int>(color.G()) << " "
         << "R:" << static_cast<int>(color.R()) << " "

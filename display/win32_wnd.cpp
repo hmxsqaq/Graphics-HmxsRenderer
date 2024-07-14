@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-Win32Wnd::Win32Wnd(const LPCSTR& class_name, const LPCSTR& window_title)
+Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
     : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
       hwnd_(nullptr), memory_dc_(nullptr), pixels_(nullptr), d_i_bitmap_(nullptr), is_running_(false) {
     assert(hinstance_ != nullptr);

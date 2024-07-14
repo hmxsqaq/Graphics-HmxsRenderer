@@ -1,7 +1,6 @@
-#include <iostream>
-
-#include "renderer.h"
-#include "win32_wnd.h"
+#include "core/color_buffer.h"
+#include "core/renderer.h"
+#include "display/win32_wnd.h"
 
 constexpr int WIDTH = 500;
 constexpr int HEIGHT = 500;
