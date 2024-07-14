@@ -23,9 +23,9 @@ void Renderer::DrawLine(const ColorBuffer &buffer, int x0, int y0, int x1, int y
     int y = y0;
     for (int x = x0; x <= x1; ++x) {
         if (steep)
-            buffer.SetPixel(y, x, color);
+            buffer.setPixel(y, x, color);
         else
-            buffer.SetPixel(x, y, color);
+            buffer.setPixel(x, y, color);
         error += per_error;
         if (error > dx) {
             y += (y1 > y0 ? 1 : -1);

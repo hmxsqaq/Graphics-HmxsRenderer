@@ -13,15 +13,18 @@ public:
     Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title);
     ~Win32Wnd();
 
-    void Open(int width, int height);
-    void Draw(const ColorBuffer &buffer) const;
+    void open(int width, int height);
+    void draw(const ColorBuffer &buffer) const;
+
+    [[nodiscard]] bool isRunning() const { return is_running_; }
+
     static void HandleMsg();
-    [[nodiscard]] bool IsRunning() const { return is_running_; }
+
 private:
-    void RegisterWndClass() const;
-    void CreateWnd();
-    void CreateMemoryDC();
-    void CreateDeviceIndependentBitmap();
+    void registerWndClass() const;
+    void createWnd();
+    void createMemoryDC();
+    void createDeviceIndependentBitmap();
 
     static LRESULT CALLBACK ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

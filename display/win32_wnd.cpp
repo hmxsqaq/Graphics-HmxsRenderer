@@ -13,26 +13,26 @@ Win32Wnd::~Win32Wnd() {
     UnregisterClass(class_name_, hinstance_);
 }
 
-void Win32Wnd::Open(const int width, const int height) {
+void Win32Wnd::open(const int width, const int height) {
     assert(width > 0 && height > 0);
     width_ = width;
     height_ = height;
-    RegisterWndClass();
-    CreateWnd();
-    CreateMemoryDC();
-    CreateDeviceIndependentBitmap();
+    registerWndClass();
+    createWnd();
+    createMemoryDC();
+    createDeviceIndependentBitmap();
 
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)); // Store the pointer to the Win32Wnd object for ProcessMsg
     ShowWindow(hwnd_, SW_SHOW);
     is_running_ = true;
 }
 
-void Win32Wnd::Draw(const ColorBuffer &buffer) const {
-    assert(buffer.BPP() == ColorBuffer::RGBA || buffer.BPP() == ColorBuffer::GRAYSCALE || buffer.BPP() == ColorBuffer::RGB);
+void Win32Wnd::draw(const ColorBuffer &buffer) const {
+    assert(buffer.bpp() == ColorBuffer::RGBA || buffer.bpp() == ColorBuffer::GRAYSCALE || buffer.bpp() == ColorBuffer::RGB);
 
-    if (buffer.BPP() == ColorBuffer::RGBA) {
-        std::copy_n(buffer.BufferPtr(), buffer.Size(), pixels_);
-    } else if (buffer.BPP() == ColorBuffer::GRAYSCALE) {
+    if (buffer.bpp() == ColorBuffer::RGBA) {
+        std::copy_n(buffer.bufferPtr(), buffer.size(), pixels_);
+    } else if (buffer.bpp() == ColorBuffer::GRAYSCALE) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_;
         for (int i = 0; i < pixel_count; ++i) {
@@ -40,7 +40,7 @@ void Win32Wnd::Draw(const ColorBuffer &buffer) const {
             pixel_ptr[3] = 255;
             pixel_ptr += 4;
         }
-    } else if (buffer.BPP() == ColorBuffer::RGB) {
+    } else if (buffer.bpp() == ColorBuffer::RGB) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_;
         for (int i = 0; i < pixel_count; ++i) {
@@ -65,7 +65,7 @@ void Win32Wnd::HandleMsg() {
     }
 }
 
-void Win32Wnd::RegisterWndClass() const {
+void Win32Wnd::registerWndClass() const {
     WNDCLASS window_class = {};
     window_class.style = CS_HREDRAW | CS_VREDRAW;   // Redraw on size change
     window_class.lpfnWndProc = ProcessMsg;  // Window Message Procedure Callback
@@ -81,7 +81,7 @@ void Win32Wnd::RegisterWndClass() const {
     assert(atom != 0);
 }
 
-void Win32Wnd::CreateWnd() {
+void Win32Wnd::createWnd() {
     DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     // Adjust the window size to fit the client area
     RECT rect = {0, 0, width_, height_};
@@ -101,14 +101,14 @@ void Win32Wnd::CreateWnd() {
     assert(hwnd_ != nullptr);
 }
 
-void Win32Wnd::CreateMemoryDC() {
+void Win32Wnd::createMemoryDC() {
     HDC hdc = GetDC(hwnd_);
     memory_dc_ = CreateCompatibleDC(hdc);
     ReleaseDC(hwnd_, hdc);
     assert(memory_dc_ != nullptr);
 }
 
-void Win32Wnd::CreateDeviceIndependentBitmap() {
+void Win32Wnd::createDeviceIndependentBitmap() {
     BITMAPINFO bitmap_info = {};
     bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bitmap_info.bmiHeader.biWidth = width_;

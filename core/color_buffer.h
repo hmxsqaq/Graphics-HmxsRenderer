@@ -18,15 +18,15 @@ struct ColorBuffer {
     std::uint8_t& operator[](int index);
     std::uint8_t  operator[](int index) const;
 
-    void SetPixel(int x, int y, const Color &color) const;
-    [[nodiscard]] Color GetPixel(int x, int y) const;
+    void setPixel(int x, int y, const Color &color) const;
+    [[nodiscard]] Color getPixel(int x, int y) const;
+    [[nodiscard]] int width()  const { return width_; }
+    [[nodiscard]] int height() const { return height_; }
+    [[nodiscard]] int bpp()    const { return bpp_; }
+    [[nodiscard]] int size()   const { return width_ * height_ * bpp_; }
+    [[nodiscard]] const std::uint8_t* bufferPtr() const { return buffer_.get(); }
+    [[nodiscard]]       std::uint8_t* bufferPtr()       { return buffer_.get(); }
 
-    [[nodiscard]] int Width()  const { return width_; }
-    [[nodiscard]] int Height() const { return height_; }
-    [[nodiscard]] int BPP()    const { return bpp_; }
-    [[nodiscard]] int Size()   const { return width_ * height_ * bpp_; }
-    [[nodiscard]] const std::uint8_t* BufferPtr() const { return buffer_.get(); }
-    [[nodiscard]]       std::uint8_t* BufferPtr()       { return buffer_.get(); }
 private:
     int width_;
     int height_;
