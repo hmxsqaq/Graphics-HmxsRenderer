@@ -52,21 +52,41 @@ struct Vec {
     }
 
     T magnitude() const { return std::sqrt(dot(*this)); }
+
     Vec normalize() const { return *this / magnitude(); }
 
 private:
     std::array<T, N> data_;
 };
 
+template<typename T>
+T cross(const Vec<T, 2> &v1, const Vec<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
+
+template<typename T>
+Vec<T, 3> cross(const Vec<T, 3> &v1, const Vec<T, 3> &v2) {
+    return Vec<T, 3>({
+        v1[1] * v2[2] - v1[2] * v2[1],
+        v1[2] * v2[0] - v1[0] * v2[2],
+        v1[0] * v2[1] - v1[1] * v2[0]
+    });
+}
+
 template<typename T, size_t N>
-inline std::ostream& operator<<(std::ostream &out, const Vec<T, N> &vec) {
-    out << "(";
+std::ostream& operator<<(std::ostream &out, const Vec<T, N> &vec) {
+    out << "[";
     for (size_t i = 0; i < N; ++i) {
         out << vec[i];
         if (i < N - 1) out << ", ";
     }
-    out << ")";
+    out << "]";
     return out;
 }
+
+using Vec2 = Vec<double, 2>;
+using Vec3 = Vec<double, 3>;
+using Vec4 = Vec<double, 4>;
+using Vec2i = Vec<int, 2>;
+using Vec3i = Vec<int, 3>;
+using Vec4i = Vec<int, 4>;
 
 #endif //VECTOR_H
