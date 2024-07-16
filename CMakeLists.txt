@@ -12,6 +12,7 @@ add_executable(HmxsRenderer main.cpp
         core/renderer.cpp
         core/renderer.h
         maths/vector.h
-        maths/maths.h)
+        maths/maths.h
+        maths/matrix.h)
 
 #set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)

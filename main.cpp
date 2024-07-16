@@ -1,7 +1,7 @@
 #include "core/color_buffer.h"
 #include "core/renderer.h"
 #include "display/win32_wnd.h"
-
+#include "maths/maths.h"
 #include <iostream>
 
 constexpr int WIDTH = 500;
