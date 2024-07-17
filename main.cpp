@@ -8,12 +8,16 @@ constexpr int WIDTH = 500;
 constexpr int HEIGHT = 500;
 
 int main() {
-    ColorBuffer frame_buffer(WIDTH, HEIGHT, ColorBuffer::GRAYSCALE);
-    Renderer::DrawLine(frame_buffer, 0, 0, WIDTH - 1, HEIGHT - 1, {255, 0, 0, 255});
+    ColorBuffer frame_buffer(WIDTH, HEIGHT, ColorType::GRAYSCALE);
+    Vector2I p0{0, 0}, p1{WIDTH - 1, HEIGHT - 1};
     Win32Wnd window("Hmxs", "HmxsRenderer");
-    window.open(WIDTH, HEIGHT);
+    window.openWnd(WIDTH, HEIGHT);
     while (window.isRunning()) {
-        window.draw(frame_buffer);
+        Renderer::DrawLine(frame_buffer, p0[0], p0[1], p1[0], p1[1], {255, 0, 0, 255});
+        window.drawBuffer(frame_buffer);
+        window.drawText("Hello, Hmxs!");
+        window.updateWnd();
+        frame_buffer.clear(0);
         Win32Wnd::HandleMsg();
     }
     return 0;

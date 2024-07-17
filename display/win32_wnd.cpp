@@ -3,8 +3,9 @@
 #include <algorithm>
 
 Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
-    : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
-      hwnd_(nullptr), memory_dc_(nullptr), pixels_(nullptr), d_i_bitmap_(nullptr), is_running_(false) {
+    : class_name_(class_name), window_title_(window_title), width_(0), height_(0),
+      hinstance_(GetModuleHandle(nullptr)), hwnd_(nullptr),
+      pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr), is_running_(false) {
     assert(hinstance_ != nullptr);
 }
 
@@ -13,7 +14,7 @@ Win32Wnd::~Win32Wnd() {
     UnregisterClass(class_name_, hinstance_);
 }
 
-void Win32Wnd::open(const int width, const int height) {
+void Win32Wnd::openWnd(const int width, const int height) {
     assert(width > 0 && height > 0);
     width_ = width;
     height_ = height;
@@ -27,22 +28,22 @@ void Win32Wnd::open(const int width, const int height) {
     is_running_ = true;
 }
 
-void Win32Wnd::draw(const ColorBuffer &buffer) const {
-    assert(buffer.bpp() == ColorBuffer::RGBA || buffer.bpp() == ColorBuffer::GRAYSCALE || buffer.bpp() == ColorBuffer::RGB);
+void Win32Wnd::drawBuffer(const ColorBuffer &buffer) const {
+    assert(buffer.bpp() == ColorType::RGBA || buffer.bpp() == ColorType::GRAYSCALE || buffer.bpp() == ColorType::RGB);
 
-    if (buffer.bpp() == ColorBuffer::RGBA) {
-        std::copy_n(buffer.bufferPtr(), buffer.size(), pixels_);
-    } else if (buffer.bpp() == ColorBuffer::GRAYSCALE) {
+    if (buffer.bpp() == ColorType::RGBA) {
+        std::copy_n(buffer.bufferPtr(), buffer.size(), pixels_buffer_);
+    } else if (buffer.bpp() == ColorType::GRAYSCALE) {
         const int pixel_count = width_ * height_;
-        uint8_t* pixel_ptr = pixels_;
+        uint8_t* pixel_ptr = pixels_buffer_;
         for (int i = 0; i < pixel_count; ++i) {
             pixel_ptr[0] = pixel_ptr[1] = pixel_ptr[2] = buffer[i];
             pixel_ptr[3] = 255;
             pixel_ptr += 4;
         }
-    } else if (buffer.bpp() == ColorBuffer::RGB) {
+    } else if (buffer.bpp() == ColorType::RGB) {
         const int pixel_count = width_ * height_;
-        uint8_t* pixel_ptr = pixels_;
+        uint8_t* pixel_ptr = pixels_buffer_;
         for (int i = 0; i < pixel_count; ++i) {
             pixel_ptr[0] = buffer[i * 3];
             pixel_ptr[1] = buffer[i * 3 + 1];
@@ -51,9 +52,31 @@ void Win32Wnd::draw(const ColorBuffer &buffer) const {
             pixel_ptr += 4;
         }
     }
+}
 
+void Win32Wnd::drawText(const std::string &text) {
     HDC hdc = GetDC(hwnd_);
-    BitBlt(hdc, 0, 0, width_, height_, memory_dc_, 0, 0, SRCCOPY);
+    text_dc_ = CreateCompatibleDC(hdc);
+    SetBkMode(text_dc_, TRANSPARENT);
+    SetTextColor(text_dc_, RGB(255, 0, 0));
+    HFONT font = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "LXGW WenKai");
+    SelectObject(text_dc_, font);
+    RECT rect = {0, 0, 0, 0};
+    DrawText(text_dc_, text.c_str(), -1, &rect, DT_CALCRECT);
+    text_size_.cx = rect.right - rect.left;
+    text_size_.cy = rect.bottom - rect.top;
+    text_bitmap_ = CreateCompatibleBitmap(hdc, text_size_.cx, text_size_.cy);
+    SelectObject(text_dc_, text_bitmap_);
+    RECT draw_rect = {0, 0, text_size_.cx, text_size_.cy};
+    DrawText(text_dc_, text.c_str(), -1, &draw_rect, DT_LEFT);
+    ReleaseDC(hwnd_, hdc);
+}
+
+void Win32Wnd::updateWnd() const {
+    HDC hdc = GetDC(hwnd_);
+    BitBlt(pixels_dc_, 0, 0, text_size_.cx, text_size_.cy, text_dc_, 0, 0, SRCCOPY);
+    BitBlt(hdc, 0, 0, width_, height_, pixels_dc_, 0, 0, SRCCOPY);
     ReleaseDC(hwnd_, hdc);
 }
 
@@ -82,7 +105,7 @@ void Win32Wnd::registerWndClass() const {
 }
 
 void Win32Wnd::createWnd() {
-    DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    constexpr DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     // Adjust the window size to fit the client area
     RECT rect = {0, 0, width_, height_};
     AdjustWindowRect(&rect, style, FALSE);
@@ -103,9 +126,9 @@ void Win32Wnd::createWnd() {
 
 void Win32Wnd::createMemoryDC() {
     HDC hdc = GetDC(hwnd_);
-    memory_dc_ = CreateCompatibleDC(hdc);
+    pixels_dc_ = CreateCompatibleDC(hdc);
     ReleaseDC(hwnd_, hdc);
-    assert(memory_dc_ != nullptr);
+    assert(pixels_dc_ != nullptr);
 }
 
 void Win32Wnd::createDeviceIndependentBitmap() {
@@ -116,16 +139,15 @@ void Win32Wnd::createDeviceIndependentBitmap() {
     bitmap_info.bmiHeader.biPlanes = 1;
     bitmap_info.bmiHeader.biBitCount = 32;
     bitmap_info.bmiHeader.biCompression = BI_RGB;
-    d_i_bitmap_ = CreateDIBSection(
-        memory_dc_,
+    pixel_bitmap_ = CreateDIBSection(
+        pixels_dc_,
         &bitmap_info,
         DIB_RGB_COLORS,
-        reinterpret_cast<void **>(&pixels_),
+        reinterpret_cast<void **>(&pixels_buffer_),
         nullptr,
         0);
-    assert(d_i_bitmap_ != nullptr);
-    const auto old_bitmap = static_cast<HBITMAP>(SelectObject(memory_dc_, d_i_bitmap_));
-    DeleteObject(old_bitmap);
+    assert(pixel_bitmap_ != nullptr);
+    SelectObject(pixels_dc_, pixel_bitmap_);
 }
 
 LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -133,9 +155,37 @@ LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     if (wnd == nullptr) return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
-    if (uMsg == WM_DESTROY) {
-        wnd->is_running_ = false;
-        return 0;
+    switch (uMsg) {
+        case WM_DESTROY:        wnd->is_running_ = false;   return 0;
+        case WM_KEYDOWN:        ProcessKey(wParam);         return 0;
+        case WM_LBUTTONDOWN:    ProcessMouse(L);            return 0;
+        case WM_RBUTTONDOWN:    ProcessMouse(R);            return 0;
+        case WM_MOUSEWHEEL:     ProcessScroll(wParam);      return 0;
+        default: return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
-    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+void Win32Wnd::ProcessKey(const WPARAM wParam) {
+    KeyCode key_code;
+    switch (wParam) {
+        case VK_ESCAPE: key_code = ESC;     break;
+        case 'A':       key_code = A;       break;
+        case 'D':       key_code = D;       break;
+        case 'W':       key_code = W;       break;
+        case 'S':       key_code = S;       break;
+        case 'Q':       key_code = Q;       break;
+        case 'E':       key_code = E;       break;
+        case VK_SPACE:  key_code = SPACE;   break;
+        default:                            return;
+    }
+    if (key_callback) key_callback(key_code);
+}
+
+void Win32Wnd::ProcessMouse(const MouseCode mouse_code) {
+    if (mouse_callback) mouse_callback(mouse_code);
+}
+
+void Win32Wnd::ProcessScroll(const WPARAM wParam) {
+    double offset = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+    if (scroll_callback) scroll_callback(offset);
 }
