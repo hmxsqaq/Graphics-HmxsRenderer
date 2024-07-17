@@ -42,6 +42,10 @@ std::uint8_t ColorBuffer::operator[](const int index) const {
     return buffer_[index];
 }
 
+void ColorBuffer::clear(const uint8_t value) const {
+    std::fill_n(buffer_.get(), width_ * height_ * bpp_, value);
+}
+
 void ColorBuffer::setPixel(const int x, const int y, const Color &color) const {
     assert(x >= 0 && x < width_ && y >= 0 && y < height_);
     std::copy_n(color.bgra.begin(), bpp_, buffer_.get() + (x + y * width_) * bpp_);

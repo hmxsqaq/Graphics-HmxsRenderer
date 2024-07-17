@@ -6,9 +6,14 @@
 
 #include "color.h"
 
-struct ColorBuffer {
-    enum { GRAYSCALE = 1, RGB = 3, RGBA = 4 };
+enum ColorType {
+    GRAYSCALE = 1,
+    RGB = 3,
+    RGBA = 4
+};
 
+class ColorBuffer {
+public:
     ColorBuffer();
     ColorBuffer(int width, int height, uint8_t bpp);
     ColorBuffer(ColorBuffer &&other) noexcept;
@@ -17,6 +22,8 @@ struct ColorBuffer {
 
     std::uint8_t& operator[](int index);
     std::uint8_t  operator[](int index) const;
+
+    void clear(uint8_t value) const;
 
     void setPixel(int x, int y, const Color &color) const;
     [[nodiscard]] Color getPixel(int x, int y) const;
