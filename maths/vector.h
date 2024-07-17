@@ -81,21 +81,19 @@ struct Vector {
         for (size_t i = 0; i < NEW_N; ++i) ret[i] = data_[i];
         return ret;
     }
+
+    static T cross(const Vector<T, 2> &v1, const Vector<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
+
+    static Vector<T, 3> cross(const Vector<T, 3> &v1, const Vector<T, 3> &v2) {
+        return Vector<T, 3>({
+            v1[1] * v2[2] - v1[2] * v2[1],
+            v1[2] * v2[0] - v1[0] * v2[2],
+            v1[0] * v2[1] - v1[1] * v2[0]
+        });
+    }
 private:
     std::array<T, N> data_;
 };
-
-template<typename T>
-T cross(const Vector<T, 2> &v1, const Vector<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
-
-template<typename T>
-Vector<T, 3> cross(const Vector<T, 3> &v1, const Vector<T, 3> &v2) {
-    return Vector<T, 3>({
-        v1[1] * v2[2] - v1[2] * v2[1],
-        v1[2] * v2[0] - v1[0] * v2[2],
-        v1[0] * v2[1] - v1[1] * v2[0]
-    });
-}
 
 template<typename T, size_t N>
 std::ostream& operator<<(std::ostream &out, const Vector<T, N> &vec) {
