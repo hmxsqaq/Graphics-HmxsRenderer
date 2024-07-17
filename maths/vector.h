@@ -51,22 +51,22 @@ struct Vector {
         return ret;
     }
 
-    T dot(const Vector &other) const {
+    T Dot(const Vector &other) const {
         return *this * other;
     }
 
-    T magnitude() const { return std::sqrt(*this * *this); }
+    T Magnitude() const { return std::sqrt(*this * *this); }
 
-    Vector normalize() const { return *this / magnitude(); }
+    Vector Normalize() const { return *this / Magnitude(); }
 
     template<size_t NEW_N>
     Vector<T, NEW_N> resize(T fill = T(1)) {
         if constexpr (N == NEW_N) return *this;
-        return N > NEW_N ? project<NEW_N>() : embed<NEW_N>(fill);
+        return N > NEW_N ? Project<NEW_N>() : Embed<NEW_N>(fill);
     }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> embed(T fill = T(1)) {
+    Vector<T, NEW_N> Embed(T fill = T(1)) {
         assert(N <= NEW_N);
         Vector<T, NEW_N> ret;
         for (size_t i = 0; i < N; ++i) ret[i] = data_[i];
@@ -75,16 +75,16 @@ struct Vector {
     }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> project() {
+    Vector<T, NEW_N> Project() {
         assert(N >= NEW_N);
         Vector<T, NEW_N> ret;
         for (size_t i = 0; i < NEW_N; ++i) ret[i] = data_[i];
         return ret;
     }
 
-    static T cross(const Vector<T, 2> &v1, const Vector<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
+    static T Cross(const Vector<T, 2> &v1, const Vector<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
 
-    static Vector<T, 3> cross(const Vector<T, 3> &v1, const Vector<T, 3> &v2) {
+    static Vector<T, 3> Cross(const Vector<T, 3> &v1, const Vector<T, 3> &v2) {
         return Vector<T, 3>({
             v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],

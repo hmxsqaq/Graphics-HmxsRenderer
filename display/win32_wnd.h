@@ -7,38 +7,39 @@
 #include <cstdint>
 #include <functional>
 
-#include "../core/color_buffer.h"
+#include "../core/buffer.h"
 
 typedef enum { A, D, W, S, Q, E, SPACE, ESC } KeyCode;
 typedef enum { L, R, NUM } MouseCode;
-
-inline std::function<void(KeyCode)> key_callback = nullptr;
-inline std::function<void(MouseCode)> mouse_callback = nullptr;
-inline std::function<void(double)> scroll_callback = nullptr;
 
 class Win32Wnd {
 public:
     Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title);
     ~Win32Wnd();
 
-    void openWnd(int width, int height);
-    void drawBuffer(const ColorBuffer &buffer) const;
-    void drawText(const std::string &text);
-    void updateWnd() const;
+    void OpenWnd(int width, int height);
+    void PushBuffer(const ColorBuffer &buffer) const;
+    void PushText(const std::string &text);
+    void UpdateWnd() const;
 
-    [[nodiscard]] bool isRunning() const { return is_running_; }
+    [[nodiscard]] bool is_running() const { return is_running_; }
 
     static void HandleMsg();
+
+    std::function<void(Win32Wnd*, KeyCode)> key_callback;
+    std::function<void(Win32Wnd*, MouseCode)> mouse_callback;
+    std::function<void(Win32Wnd*, double)> scroll_callback;
+
 private:
-    void registerWndClass() const;
-    void createWnd();
-    void createMemoryDC();
-    void createDeviceIndependentBitmap();
+    void RegisterWndClass() const;
+    void CreateWnd();
+    void CreateMemoryDC();
+    void CreateDeviceIndependentBitmap();
 
     static LRESULT CALLBACK ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static void ProcessKey(WPARAM wParam);
-    static void ProcessMouse(MouseCode mouse_code);
-    static void ProcessScroll(WPARAM wParam);
+    static void ProcessKey(Win32Wnd* windows, WPARAM wParam);
+    static void ProcessMouse(Win32Wnd* windows, MouseCode mouse_code);
+    static void ProcessScroll(Win32Wnd* windows, WPARAM wParam);
 
     LPCSTR class_name_;     // Window class name
     LPCSTR window_title_;   // Window title name

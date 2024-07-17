@@ -1,4 +1,4 @@
-#include "color_buffer.h"
+#include "buffer.h"
 #include <algorithm>
 
 ColorBuffer::ColorBuffer()
@@ -11,27 +11,6 @@ ColorBuffer::ColorBuffer(const int width, const int height, const uint8_t bpp)
     buffer_ = std::make_unique<std::uint8_t[]>(width * height * bpp);
 }
 
-ColorBuffer::ColorBuffer(ColorBuffer &&other) noexcept
-    : width_(other.width_), height_(other.height_), bpp_(other.bpp_), buffer_(std::move(other.buffer_)) {
-    other.width_ = 0;
-    other.height_ = 0;
-    other.bpp_ = 0;
-}
-
-ColorBuffer& ColorBuffer::operator=(ColorBuffer &&other) noexcept {
-    if (this != &other) {
-        width_ = other.width_;
-        height_ = other.height_;
-        bpp_ = other.bpp_;
-        buffer_ = std::move(other.buffer_);
-
-        other.width_ = 0;
-        other.height_ = 0;
-        other.bpp_ = 0;
-    }
-    return *this;
-}
-
 std::uint8_t& ColorBuffer::operator[](const int index) {
     assert(index >= 0 && index < width_ * height_ * bpp_);
     return buffer_[index];
@@ -42,16 +21,16 @@ std::uint8_t ColorBuffer::operator[](const int index) const {
     return buffer_[index];
 }
 
-void ColorBuffer::clear(const uint8_t value) const {
+void ColorBuffer::Clear(const uint8_t value) const {
     std::fill_n(buffer_.get(), width_ * height_ * bpp_, value);
 }
 
-void ColorBuffer::setPixel(const int x, const int y, const Color &color) const {
+void ColorBuffer::SetPixel(const int x, const int y, const Color &color) const {
     assert(x >= 0 && x < width_ && y >= 0 && y < height_);
     std::copy_n(color.bgra.begin(), bpp_, buffer_.get() + (x + y * width_) * bpp_);
 }
 
-Color ColorBuffer::getPixel(const int x, const int y) const {
+Color ColorBuffer::GetPixel(const int x, const int y) const {
     assert(x >= 0 && x < width_ && y >= 0 && y < height_);
     Color ret = {0, 0, 0, 0};
     std::copy_n(buffer_.get() + (x + y * width_) * bpp_, bpp_, ret.bgra.begin());

@@ -7,12 +7,12 @@ add_executable(HmxsRenderer main.cpp
         display/win32_wnd.cpp
         display/win32_wnd.h
         core/color.h
-        core/color_buffer.cpp
-        core/color_buffer.h
+        core/buffer.cpp
+        core/buffer.h
         core/renderer.cpp
         core/renderer.h
         maths/vector.h
         maths/maths.h
         maths/matrix.h)
 
-#set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)
+set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)

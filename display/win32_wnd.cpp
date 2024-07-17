@@ -5,7 +5,9 @@
 Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
     : class_name_(class_name), window_title_(window_title), width_(0), height_(0),
       hinstance_(GetModuleHandle(nullptr)), hwnd_(nullptr),
-      pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr), is_running_(false) {
+      pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr),
+      text_font_(nullptr), text_dc_(nullptr), text_bitmap_(nullptr), text_size_{},
+      is_running_(false) {
     assert(hinstance_ != nullptr);
 }
 
@@ -14,25 +16,25 @@ Win32Wnd::~Win32Wnd() {
     UnregisterClass(class_name_, hinstance_);
 }
 
-void Win32Wnd::openWnd(const int width, const int height) {
+void Win32Wnd::OpenWnd(const int width, const int height) {
     assert(width > 0 && height > 0);
     width_ = width;
     height_ = height;
-    registerWndClass();
-    createWnd();
-    createMemoryDC();
-    createDeviceIndependentBitmap();
+    RegisterWndClass();
+    CreateWnd();
+    CreateMemoryDC();
+    CreateDeviceIndependentBitmap();
 
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)); // Store the pointer to the Win32Wnd object for ProcessMsg
     ShowWindow(hwnd_, SW_SHOW);
     is_running_ = true;
 }
 
-void Win32Wnd::drawBuffer(const ColorBuffer &buffer) const {
+void Win32Wnd::PushBuffer(const ColorBuffer &buffer) const {
     assert(buffer.bpp() == ColorType::RGBA || buffer.bpp() == ColorType::GRAYSCALE || buffer.bpp() == ColorType::RGB);
 
     if (buffer.bpp() == ColorType::RGBA) {
-        std::copy_n(buffer.bufferPtr(), buffer.size(), pixels_buffer_);
+        std::copy_n(buffer.buffer(), buffer.size(), pixels_buffer_);
     } else if (buffer.bpp() == ColorType::GRAYSCALE) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_buffer_;
@@ -54,7 +56,7 @@ void Win32Wnd::drawBuffer(const ColorBuffer &buffer) const {
     }
 }
 
-void Win32Wnd::drawText(const std::string &text) {
+void Win32Wnd::PushText(const std::string &text) {
     HDC hdc = GetDC(hwnd_);
     text_dc_ = CreateCompatibleDC(hdc);
     SetBkMode(text_dc_, TRANSPARENT);
@@ -73,7 +75,7 @@ void Win32Wnd::drawText(const std::string &text) {
     ReleaseDC(hwnd_, hdc);
 }
 
-void Win32Wnd::updateWnd() const {
+void Win32Wnd::UpdateWnd() const {
     HDC hdc = GetDC(hwnd_);
     BitBlt(pixels_dc_, 0, 0, text_size_.cx, text_size_.cy, text_dc_, 0, 0, SRCCOPY);
     BitBlt(hdc, 0, 0, width_, height_, pixels_dc_, 0, 0, SRCCOPY);
@@ -88,7 +90,7 @@ void Win32Wnd::HandleMsg() {
     }
 }
 
-void Win32Wnd::registerWndClass() const {
+void Win32Wnd::RegisterWndClass() const {
     WNDCLASS window_class = {};
     window_class.style = CS_HREDRAW | CS_VREDRAW;   // Redraw on size change
     window_class.lpfnWndProc = ProcessMsg;  // Window Message Procedure Callback
@@ -104,7 +106,7 @@ void Win32Wnd::registerWndClass() const {
     assert(atom != 0);
 }
 
-void Win32Wnd::createWnd() {
+void Win32Wnd::CreateWnd() {
     constexpr DWORD style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     // Adjust the window size to fit the client area
     RECT rect = {0, 0, width_, height_};
@@ -124,14 +126,14 @@ void Win32Wnd::createWnd() {
     assert(hwnd_ != nullptr);
 }
 
-void Win32Wnd::createMemoryDC() {
+void Win32Wnd::CreateMemoryDC() {
     HDC hdc = GetDC(hwnd_);
     pixels_dc_ = CreateCompatibleDC(hdc);
     ReleaseDC(hwnd_, hdc);
     assert(pixels_dc_ != nullptr);
 }
 
-void Win32Wnd::createDeviceIndependentBitmap() {
+void Win32Wnd::CreateDeviceIndependentBitmap() {
     BITMAPINFO bitmap_info = {};
     bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bitmap_info.bmiHeader.biWidth = width_;
@@ -151,21 +153,21 @@ void Win32Wnd::createDeviceIndependentBitmap() {
 }
 
 LRESULT Win32Wnd::ProcessMsg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    auto* wnd = reinterpret_cast<Win32Wnd*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    auto* windows = reinterpret_cast<Win32Wnd*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-    if (wnd == nullptr) return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    if (windows == nullptr) return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
     switch (uMsg) {
-        case WM_DESTROY:        wnd->is_running_ = false;   return 0;
-        case WM_KEYDOWN:        ProcessKey(wParam);         return 0;
-        case WM_LBUTTONDOWN:    ProcessMouse(L);            return 0;
-        case WM_RBUTTONDOWN:    ProcessMouse(R);            return 0;
-        case WM_MOUSEWHEEL:     ProcessScroll(wParam);      return 0;
+        case WM_DESTROY:        windows->is_running_ = false;   return 0;
+        case WM_KEYDOWN:        ProcessKey(windows, wParam);         return 0;
+        case WM_LBUTTONDOWN:    ProcessMouse(windows, L);            return 0;
+        case WM_RBUTTONDOWN:    ProcessMouse(windows, R);            return 0;
+        case WM_MOUSEWHEEL:     ProcessScroll(windows, wParam);      return 0;
         default: return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 }
 
-void Win32Wnd::ProcessKey(const WPARAM wParam) {
+void Win32Wnd::ProcessKey(Win32Wnd* windows, const WPARAM wParam) {
     KeyCode key_code;
     switch (wParam) {
         case VK_ESCAPE: key_code = ESC;     break;
@@ -178,14 +180,14 @@ void Win32Wnd::ProcessKey(const WPARAM wParam) {
         case VK_SPACE:  key_code = SPACE;   break;
         default:                            return;
     }
-    if (key_callback) key_callback(key_code);
+    if (windows->key_callback) windows->key_callback(windows, key_code);
 }
 
-void Win32Wnd::ProcessMouse(const MouseCode mouse_code) {
-    if (mouse_callback) mouse_callback(mouse_code);
+void Win32Wnd::ProcessMouse(Win32Wnd* windows, const MouseCode mouse_code) {
+    if (windows->mouse_callback) windows->mouse_callback(windows, mouse_code);
 }
 
-void Win32Wnd::ProcessScroll(const WPARAM wParam) {
-    double offset = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-    if (scroll_callback) scroll_callback(offset);
+void Win32Wnd::ProcessScroll(Win32Wnd* windows, const WPARAM wParam) {
+    const double offset = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+    if (windows->scroll_callback) windows->scroll_callback(windows, offset);
 }
