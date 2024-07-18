@@ -12,6 +12,9 @@
 typedef enum { A, D, W, S, Q, E, SPACE, ESC } KeyCode;
 typedef enum { L, R, NUM } MouseCode;
 
+/**
+ * @brief window class based on Win32 API using GDI to draw pixels and text.
+ */
 class Win32Wnd {
 public:
     Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title);

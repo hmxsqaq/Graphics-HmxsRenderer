@@ -6,6 +6,12 @@
 
 template<typename T, size_t N> struct Determinant;
 
+/**
+ * @brief Matrix struct containing various matrix operations.
+ * @tparam T type of the matrix.
+ * @tparam ROW Row of the matrix.
+ * @tparam COL Column of the matrix.
+ */
 template<typename T, size_t ROW, size_t COL>
 struct Matrix {
     Matrix() { for (size_t i = 0; i < ROW; ++i) data[i] = Vector<T, COL>(); }
@@ -129,6 +135,11 @@ std::ostream& operator<<(std::ostream &out, const Matrix<T, ROW, COL> matrix) {
     return out;
 }
 
+/**
+ * Determinant calculation handler for matrix.
+ * @tparam T type
+ * @tparam N square matrix's row/column size
+ */
 template<typename T, size_t N>
 struct Determinant {
     static T Calculate(const Matrix<T, N, N> &matrix) {
@@ -150,6 +161,7 @@ struct Determinant<T, 2> {
     }
 };
 
+// pre-defined matrix types
 using Matrix2x2 = Matrix<float, 2, 2>;
 using Matrix3x3 = Matrix<float, 3, 3>;
 using Matrix4x4 = Matrix<float, 4, 4>;

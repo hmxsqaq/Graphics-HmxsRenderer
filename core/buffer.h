@@ -5,12 +5,18 @@
 #include <memory>
 #include "color.h"
 
+/**
+ * @brief enum of bytes per pixel.
+ */
 enum ColorType {
     GRAYSCALE = 1,
     RGB = 3,
     RGBA = 4
 };
 
+/**
+ * @brief buffer of a color image
+ */
 class ColorBuffer {
 public:
     ColorBuffer();

@@ -6,6 +6,9 @@
 #include <cassert>
 #include <ostream>
 
+/**
+ * @brief basic ldr color struct using 4 bytes to store B, G, R, A.
+ */
 struct Color {
     Color() : bgra{0, 0, 0, 255} {}
     Color(const std::uint8_t b, const std::uint8_t g, const std::uint8_t r, const std::uint8_t a) : bgra{b, g, r, a} {}

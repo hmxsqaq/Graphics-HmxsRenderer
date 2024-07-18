@@ -6,6 +6,11 @@
 #include <cmath>
 #include <ostream>
 
+/**
+ * @brief Vector struct containing various vector operations.
+ * @tparam T type of the vector.
+ * @tparam N dimension of the vector.
+ */
 template<typename T, size_t N>
 struct Vector {
     Vector() { for (size_t i = 0; i < N; ++i) data_[i] = T(); }
@@ -106,6 +111,7 @@ std::ostream& operator<<(std::ostream &out, const Vector<T, N> &vec) {
     return out;
 }
 
+// pre-defined vector types
 using Vector2f = Vector<float, 2>;
 using Vector3f = Vector<float, 3>;
 using Vector4f = Vector<float, 4>;
