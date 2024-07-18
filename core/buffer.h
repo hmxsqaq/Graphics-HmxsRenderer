@@ -14,25 +14,26 @@ enum ColorType {
 class ColorBuffer {
 public:
     ColorBuffer();
-    ColorBuffer(int width, int height, uint8_t bpp);
+    ColorBuffer(size_t width, size_t height, uint8_t bpp = RGBA);
 
-    std::uint8_t& operator[](int index);
-    std::uint8_t  operator[](int index) const;
+    std::uint8_t& operator[](size_t index);
+    std::uint8_t  operator[](size_t index) const;
 
-    void Clear(uint8_t value) const;
+    void Clear(uint8_t value = 0) const;
 
-    void SetPixel(int x, int y, const Color &color) const;
-    [[nodiscard]] Color GetPixel(int x, int y) const;
-    [[nodiscard]] int width()  const { return width_; }
-    [[nodiscard]] int height() const { return height_; }
-    [[nodiscard]] int bpp()    const { return bpp_; }
-    [[nodiscard]] int size()   const { return width_ * height_ * bpp_; }
+    void SetPixel(size_t x, size_t y, const Color &color) const;
+    [[nodiscard]] Color GetPixel(size_t x, size_t y) const;
+
+    [[nodiscard]] size_t width() const { return width_; }
+    [[nodiscard]] size_t height() const { return height_; }
+    [[nodiscard]] std::uint8_t bpp() const { return bpp_; }
+    [[nodiscard]] size_t size() const { return width_ * height_ * bpp_; }
     [[nodiscard]] const std::uint8_t* buffer() const { return buffer_.get(); }
     [[nodiscard]]       std::uint8_t* buffer()       { return buffer_.get(); }
 
 private:
-    int width_;
-    int height_;
+    size_t width_;
+    size_t height_;
     std::uint8_t bpp_;
     std::unique_ptr<std::uint8_t[]> buffer_;
 };

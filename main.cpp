@@ -8,8 +8,8 @@ constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
 
 int main() {
-    ColorBuffer frame_buffer(kWidth, kHeigh, ColorType::GRAYSCALE);
-    Vector2 p0{0, 0}, p1{kWidth - 1, kHeigh - 1};
+    ColorBuffer frame_buffer(kWidth, kHeigh, GRAYSCALE);
+    Vector2f p0{0, 0}, p1{kWidth - 1, kHeigh - 1};
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {

@@ -150,8 +150,8 @@ struct Determinant<T, 2> {
     }
 };
 
-using Matrix2x2 = Matrix<double, 2, 2>;
-using Matrix3x3 = Matrix<double, 3, 3>;
-using Matrix4x4 = Matrix<double, 4, 4>;
+using Matrix2x2 = Matrix<float, 2, 2>;
+using Matrix3x3 = Matrix<float, 3, 3>;
+using Matrix4x4 = Matrix<float, 4, 4>;
 
 #endif //MATRIX_H

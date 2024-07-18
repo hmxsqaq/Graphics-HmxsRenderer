@@ -1,7 +1,7 @@
 #include "renderer.h"
 #include <cmath>
 
-void Renderer::DrawLine(const ColorBuffer &buffer, Vector2 p0, Vector2 p1, const Color &color) {
+void Renderer::DrawLine(const ColorBuffer &buffer, Vector2f p0, Vector2f p1, const Color &color) {
     bool steep = false;
     if (std::abs(p0[0] - p1[0]) < std::abs(p0[1] - p1[1])) {
         std::swap(p0[0], p0[1]);
