@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <functional>
 
-#include "../core/buffer.h"
+#include "buffer.h"
 
 typedef enum { A, D, W, S, Q, E, SPACE, ESC } KeyCode;
 typedef enum { L, R, NUM } MouseCode;

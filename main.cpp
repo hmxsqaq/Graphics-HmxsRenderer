@@ -1,6 +1,6 @@
-#include "core/buffer.h"
-#include "core/renderer.h"
-#include "display/win32_wnd.h"
+#include "buffer.h"
+#include "renderer.h"
+#include "win32_wnd.h"
 #include "maths/maths.h"
 #include <iostream>
 

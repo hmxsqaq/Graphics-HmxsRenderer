@@ -3,7 +3,7 @@
 
 #include "color.h"
 #include "buffer.h"
-#include "../maths/maths.h"
+#include "maths/maths.h"
 
 class Renderer {
 public:
