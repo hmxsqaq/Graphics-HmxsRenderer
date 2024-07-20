@@ -34,7 +34,7 @@ void Win32Wnd::PushBuffer(const ColorBuffer &buffer) const {
     assert(buffer.bpp() == ColorType::RGBA || buffer.bpp() == ColorType::GRAYSCALE || buffer.bpp() == ColorType::RGB);
 
     if (buffer.bpp() == ColorType::RGBA) {
-        std::copy_n(buffer.buffer(), buffer.size(), pixels_buffer_);
+        std::copy_n(buffer.data(), buffer.size(), pixels_buffer_);
     } else if (buffer.bpp() == ColorType::GRAYSCALE) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_buffer_;

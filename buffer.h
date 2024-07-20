@@ -28,20 +28,22 @@ public:
     void SetPixel(size_t x, size_t y, const Color &color) const;
     [[nodiscard]] Color GetPixel(size_t x, size_t y) const;
 
+    void FilpVertically();
+    void FilpHorizontally();
     void Clear(uint8_t value = 0) const;
 
     [[nodiscard]] size_t width() const { return width_; }
     [[nodiscard]] size_t height() const { return height_; }
     [[nodiscard]] std::uint8_t bpp() const { return bpp_; }
     [[nodiscard]] size_t size() const { return width_ * height_ * bpp_; }
-    [[nodiscard]] const std::uint8_t* buffer() const { return buffer_.get(); }
-    [[nodiscard]]       std::uint8_t* buffer()       { return buffer_.get(); }
+    [[nodiscard]] const std::uint8_t* data() const { return data_.get(); }
+    [[nodiscard]]       std::uint8_t* data()       { return data_.get(); }
 
 private:
     size_t width_;
     size_t height_;
     std::uint8_t bpp_;
-    std::unique_ptr<std::uint8_t[]> buffer_;
+    std::unique_ptr<std::uint8_t[]> data_;
 };
 
 /**
@@ -63,13 +65,13 @@ public:
     [[nodiscard]] size_t width() const { return width_; }
     [[nodiscard]] size_t height() const { return height_; }
     [[nodiscard]] size_t size() const { return width_ * height_; }
-    [[nodiscard]] const float* buffer() const { return buffer_.get(); }
-    [[nodiscard]]       float* buffer()       { return buffer_.get(); }
+    [[nodiscard]] const float* data() const { return data_.get(); }
+    [[nodiscard]]       float* data()       { return data_.get(); }
 
 private:
     size_t width_;
     size_t height_;
-    std::unique_ptr<float[]> buffer_;
+    std::unique_ptr<float[]> data_;
 };
 
 #endif //IMAGE_BUFFER_H
