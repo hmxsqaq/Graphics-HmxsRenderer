@@ -1,12 +1,13 @@
 #include "tga_handler.h"
 #include <fstream>
+#include "log.h"
 
 std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filename) {
     // open file
     std::ifstream in;
     in.open(filename, std::ios::binary);
     if (!in.is_open()) {
-        std::cerr << "read - cannot open file: " << filename << "\n";
+        LOG_ERROR("TGAReader - cannot open file: " + filename);
         return nullptr;
     }
 
@@ -14,7 +15,7 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
     TGAHeader header;
     in.read(reinterpret_cast<char *>(&header), sizeof(header));
     if (!in.good()) {
-        std::cerr << "read - cannot read the TGA header\n";
+        LOG_ERROR("TGAReader - cannot read the TGA header");
         return nullptr;
     }
 
@@ -23,7 +24,7 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
     const auto height = header.height;
     const auto bpp = header.bits_per_pixel >> 3; // /= 8
     if (width <= 0 || height <= 0 || (bpp != GRAYSCALE && bpp != RGB && bpp != RGBA)) {
-        std::cerr << "read - dad width/height/bpp value: width " << width << " height " << height << " bpp " << bpp << "\n";
+        LOG_ERROR("TGAReader - bad width/height/bpp value: width " + std::to_string(width) + " height " + std::to_string(height) + " bpp " + std::to_string(bpp));
         return nullptr;
     }
 
@@ -31,18 +32,23 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
 
     // read frame_data
     if (header.data_type_code == 3 || header.data_type_code == 2) {
-        in.read(reinterpret_cast<char *>(buffer->data()), static_cast<long long>(width) * height * bpp);
+        in.read(reinterpret_cast<char *>(buffer->data()), width * height * bpp);
         if (!in.good()) {
-            std::cerr << "read - cannot read frame data\n";
+            LOG_ERROR("TGAReader - cannot read frame data");
             return nullptr;
         }
     } else if (header.data_type_code == 10 || header.data_type_code == 11) {
         if (!load_rle_data(in, *buffer)) {
-            std::cerr << "read - cannot load RLE data\n";
+            LOG_ERROR("TGAReader - cannot load RLE data");
             return nullptr;
         }
     } else {
-        std::cerr << "read - unknown file format " << static_cast<int>(header.data_type_code) << "\n";
+        LOG_ERROR("TGHandler - unknown file format: " + std::to_string(header.data_type_code));
+        return nullptr;
+    }
+
+    if (buffer->size() <= 0) {
+        LOG_ERROR("TGAReader - buffer size is invalid");
         return nullptr;
     }
 
@@ -63,11 +69,11 @@ bool TGAHandler::write_tga_file(const std::string &filename, const int width, co
     std::ofstream out;
     out.open(filename, std::ios::binary);
     if (!out.is_open()) {
-        std::cerr << "write - cannot open file: " << filename << "\n";
+        LOG_ERROR("TGAWriter - cannot open file: " + filename);
         return false;
     }
 
-    std::cout << "writing - width " << width << " height " << height << " bpp " << static_cast<int>(bpp) << "\n";
+    LOG_INFO("TGAWriter - writing: width " + std::to_string(width) + " height " + std::to_string(height) + " bpp " + std::to_string(bpp));
 
     // prepare header
     TGAHeader header = {};
@@ -80,7 +86,7 @@ bool TGAHandler::write_tga_file(const std::string &filename, const int width, co
     // write header
     out.write(reinterpret_cast<const char *>(&header), sizeof(header));
     if (!out.good()) {
-        std::cerr << "write - cannot dump the tga file\n";
+        LOG_ERROR("TGAWriter - cannot write the TGA header");
         return false;
     }
 
@@ -88,32 +94,32 @@ bool TGAHandler::write_tga_file(const std::string &filename, const int width, co
     if (!rle) {
         out.write(reinterpret_cast<const char *>(data), width * height * bpp);
         if (!out.good()) {
-            std::cerr << "write - cannot unload raw frame_data\n";
+            LOG_ERROR("TGAWriter - cannot write the TGA data");
             return false;
         }
     } else if (!unload_rle_data(out, width, height, bpp, data)) {
-        std::cerr << "write - cannot unload rle frame_data\n";
+        LOG_ERROR("TGAWriter - cannot unload RLE data");
         return false;
     }
     out.write(reinterpret_cast<const char *>(developer_area_ref), sizeof(developer_area_ref));
     if (!out.good()) {
-        std::cerr << "write - cannot dump the tga file\n";
+        LOG_ERROR("TGAWriter - cannot write the developer area ref");
         return false;
     }
     out.write(reinterpret_cast<const char *>(extension_area_ref), sizeof(extension_area_ref));
     if (!out.good()) {
-        std::cerr << "write - cannot dump the tga file\n";
+        LOG_ERROR("TGAWriter - cannot write the extension area ref");
         return false;
     }
 
     // write footer
     out.write(reinterpret_cast<const char *>(footer), sizeof(footer));
     if (!out.good()) {
-        std::cerr << "write - cannot dump the tga file\n";
+        LOG_ERROR("TGHandler - cannot write the footer");
         return false;
     }
 
-    std::cout << filename << " has been written successfully\n";
+    LOG_INFO("TGAWriter - " + filename + " has been written successfully");
     return true;
 }
 
@@ -127,7 +133,7 @@ bool TGAHandler::load_rle_data(std::ifstream &in, ColorBuffer &buffer) {
     do {
         std::uint8_t chunk_header = in.get();
         if (!in.good()) {
-            std::cerr << "rle - an error occurred while reading the frame_data\n";
+            LOG_ERROR("RLE - an error occurred while reading the frame_data");
             return false;
         }
         if (chunk_header < 128) {
@@ -135,13 +141,13 @@ bool TGAHandler::load_rle_data(std::ifstream &in, ColorBuffer &buffer) {
             for (int i = 0; i < chunk_header; i++) {
                 in.read(reinterpret_cast<char *>(color_buffer.bgra.data()), bpp);
                 if (!in.good()) {
-                    std::cerr << "rle - an error occurred while reading the header\n";
+                    LOG_ERROR("RLE - an error occurred while reading the header");
                     return false;
                 }
                 for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra[t];
                 current_pixel++;
                 if (current_pixel > pixels_count) {
-                    std::cerr << "rle - too many pixels were read\n";
+                    LOG_ERROR("RLE - too many pixels were read");
                     return false;
                 }
             }
@@ -149,14 +155,14 @@ bool TGAHandler::load_rle_data(std::ifstream &in, ColorBuffer &buffer) {
             chunk_header -= 127;
             in.read(reinterpret_cast<char *>(color_buffer.bgra.data()), bpp);
             if (!in.good()) {
-                std::cerr << "rle - an error occurred while reading the header\n";
+                LOG_ERROR("RLE - an error occurred while reading the header");
                 return false;
             }
             for (int i=0; i < chunk_header; i++) {
                 for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra[t];
                 current_pixel++;
                 if (current_pixel > pixels_count) {
-                    std::cerr << "rle - too many pixels were read\n";
+                    LOG_ERROR("RLE - too many pixels were read");
                     return false;
                 }
             }
@@ -190,12 +196,12 @@ bool TGAHandler::unload_rle_data(std::ofstream &out, const int width, const int 
         current_pixel += run_length;
         out.put(static_cast<char>(raw ? run_length - 1 : run_length + 127));
         if (!out.good()) {
-            std::cerr << "rle - can't dump the tga file\n";
+            LOG_ERROR("RLE - an error occurred while writing the header");
             return false;
         }
         out.write(reinterpret_cast<const char *>(data + chunk_start), raw ? run_length * bpp : bpp);
         if (!out.good()) {
-            std::cerr << "rle - can't dump the tga file\n";
+            LOG_ERROR("RLE - an error occurred while writing the frame_data");
             return false;
         }
     }
