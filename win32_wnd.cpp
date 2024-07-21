@@ -1,5 +1,4 @@
 #include "win32_wnd.h"
-
 #include <algorithm>
 
 Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
