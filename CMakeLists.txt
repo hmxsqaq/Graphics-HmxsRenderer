@@ -15,6 +15,9 @@ add_executable(HmxsRenderer main.cpp
         renderer.cpp
         renderer.h
         model.cpp
-        model.h)
+        model.h
+        tga_handler.cpp
+        tga_handler.h
+        log.h)
 
 set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)
