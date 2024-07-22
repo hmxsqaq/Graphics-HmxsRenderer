@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <ostream>
+#include <sstream>
 
 /**
  * @brief Vector struct containing various vector operations.
@@ -13,46 +14,48 @@
  */
 template<typename T, size_t N>
 struct Vector {
-    Vector() { for (size_t i = 0; i < N; ++i) data_[i] = T(); }
+    std::array<T, N> data;
+
+    Vector() { for (size_t i = 0; i < N; ++i) data[i] = T(); }
     Vector(std::initializer_list<T> list) {
         size_t i = 0;
         for (const auto &element : list) {
             if (i >= N) break;
-            data_[i++] = element;
+            data[i++] = element;
         }
     }
 
-    T& operator[](const size_t i)       { assert(i < N); return data_[i]; }
-    T  operator[](const size_t i) const { assert(i < N); return data_[i]; }
+    T& operator[](const size_t i)       { assert(i < N); return data[i]; }
+    T  operator[](const size_t i) const { assert(i < N); return data[i]; }
 
     Vector operator+(const Vector &other) const {
         Vector ret;
-        for (size_t i = 0; i < N; ++i) ret[i] = data_[i] + other[i];
+        for (size_t i = 0; i < N; ++i) ret[i] = data[i] + other[i];
         return ret;
     }
 
     Vector operator-(const Vector &other) const {
         Vector ret;
-        for (size_t i = 0; i < N; ++i) ret[i] = data_[i] - other[i];
+        for (size_t i = 0; i < N; ++i) ret[i] = data[i] - other[i];
         return ret;
     }
 
     Vector operator*(const T &scalar) const {
         Vector ret;
-        for (size_t i = 0; i < N; ++i) ret[i] = data_[i] * scalar;
+        for (size_t i = 0; i < N; ++i) ret[i] = data[i] * scalar;
         return ret;
     }
 
     Vector operator/(const T &scalar) const {
         assert(scalar != 0);
         Vector ret;
-        for (size_t i = 0; i < N; ++i) ret[i] = data_[i] / scalar;
+        for (size_t i = 0; i < N; ++i) ret[i] = data[i] / scalar;
         return ret;
     }
 
     T operator*(const Vector &other) const {
         T ret = T();
-        for (size_t i = 0; i < N; ++i) ret += data_[i] * other[i];
+        for (size_t i = 0; i < N; ++i) ret += data[i] * other[i];
         return ret;
     }
 
@@ -74,7 +77,7 @@ struct Vector {
     Vector<T, NEW_N> Embed(T fill = T(1)) {
         assert(N <= NEW_N);
         Vector<T, NEW_N> ret;
-        for (size_t i = 0; i < N; ++i) ret[i] = data_[i];
+        for (size_t i = 0; i < N; ++i) ret[i] = data[i];
         for (size_t i = N; i < NEW_N; ++i) ret[i] = fill;
         return ret;
     }
@@ -83,7 +86,7 @@ struct Vector {
     Vector<T, NEW_N> Project() {
         assert(N >= NEW_N);
         Vector<T, NEW_N> ret;
-        for (size_t i = 0; i < NEW_N; ++i) ret[i] = data_[i];
+        for (size_t i = 0; i < NEW_N; ++i) ret[i] = data[i];
         return ret;
     }
 
@@ -96,8 +99,17 @@ struct Vector {
             v1[0] * v2[1] - v1[1] * v2[0]
         });
     }
-private:
-    std::array<T, N> data_;
+
+    [[nodiscard]] std::string ToString() const {
+        std::ostringstream oss;
+        oss << "[";
+        for (size_t i = 0; i < N; ++i) {
+            oss << data[i];
+            if (i < N - 1) oss << ", ";
+        }
+        oss << "]";
+        return oss.str();
+    }
 };
 
 template<typename T, size_t N>

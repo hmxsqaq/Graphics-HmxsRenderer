@@ -74,4 +74,17 @@ private:
     std::unique_ptr<float[]> data_;
 };
 
+struct FrameBuffer {
+    FrameBuffer(const size_t width, const size_t height, const uint8_t bpp = RGBA)
+        : color_buffer(width, height, bpp), depth_buffer(width, height) {};
+
+    void Clear() const {
+        color_buffer.Clear();
+        depth_buffer.Clear();
+    }
+
+    ColorBuffer color_buffer;
+    DepthBuffer depth_buffer;
+};
+
 #endif //IMAGE_BUFFER_H

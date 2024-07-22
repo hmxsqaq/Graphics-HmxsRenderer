@@ -9,7 +9,7 @@
 class Model {
 public:
     Model() = delete;
-    Model(const std::string &filename);
+    explicit Model(const std::string &filename);
 
     [[nodiscard]] ColorBuffer&       diffuse_map()       { return *diffuse_map_; }
     [[nodiscard]] const ColorBuffer& diffuse_map() const { return *diffuse_map_; }

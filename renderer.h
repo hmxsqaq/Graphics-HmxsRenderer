@@ -7,7 +7,8 @@
 
 class Renderer {
 public:
-    static void DrawLine(const ColorBuffer &buffer, Vector2f p0, Vector2f p1, const Color &color);
+    static void DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer);
+    static void DrawTriangle(const FrameBuffer &buffer);
 };
 
 

@@ -2,6 +2,8 @@
 #define MATRIX_H
 
 #include <array>
+#include <sstream>
+
 #include "vector.h"
 
 template<typename T, size_t N> struct Determinant;
@@ -14,6 +16,8 @@ template<typename T, size_t N> struct Determinant;
  */
 template<typename T, size_t ROW, size_t COL>
 struct Matrix {
+    std::array<Vector<T, COL>, ROW> data;
+
     Matrix() { for (size_t i = 0; i < ROW; ++i) data[i] = Vector<T, COL>(); }
     Matrix(std::initializer_list<Vector<T, COL>> list) {
         size_t i = 0;
@@ -126,7 +130,11 @@ struct Matrix {
         return ret;
     }
 
-    std::array<Vector<T, COL>, ROW> data;
+    [[nodiscard]] std::string ToString() const {
+        std::ostringstream oss;
+        for (size_t i = 0; i < ROW; ++i) oss << "\n" << data[i];
+        return oss.str();
+    }
 };
 
 template<typename T, size_t ROW, size_t COL>
