@@ -4,7 +4,7 @@
 #include "maths/maths.h"
 #include <iostream>
 
-#include "game_object.h"
+#include "component-gameobject.h"
 #include "log.h"
 #include "model.h"
 

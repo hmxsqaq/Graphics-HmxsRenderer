@@ -19,9 +19,11 @@ add_executable(HmxsRenderer main.cpp
         tga_handler.cpp
         tga_handler.h
         log.h
-        game_object.cpp
-        game_object.h
-        shader.cpp
-        shader.h)
+        component-gameobject.cpp
+        component-gameobject.h
+        ishader.cpp
+        ishader.h
+        scene.cpp
+        scene.h)
 
 set_target_properties(HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)
