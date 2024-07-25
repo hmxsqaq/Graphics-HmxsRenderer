@@ -28,3 +28,25 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
         }
     }
 }
+
+void Renderer::DrawModel(const Model &model,
+                         const std::shared_ptr<IShader> &shader,
+                         const std::shared_ptr<FrameBuffer> &frame_buffer) {
+    for (int i = 0; i < model.faces_size(); i++) {
+        std::array<VertexShaderOutput, 3> vertex_shader_output{};
+        for (const int j : {0, 1, 2}) {
+            VertexShaderInput vertex_shader_input;
+            // todo: fill out vertex_shader_input
+            shader->Vertex(vertex_shader_input, vertex_shader_output[j]);
+        }
+
+        RasterizeTriangle(vertex_shader_output, shader, frame_buffer);
+    }
+}
+
+void Renderer::RasterizeTriangle(const std::array<VertexShaderOutput, 3> &array,
+                                 const std::shared_ptr<IShader> &shared,
+                                 const std::shared_ptr<FrameBuffer> &frame_buffer) {
+
+}
+

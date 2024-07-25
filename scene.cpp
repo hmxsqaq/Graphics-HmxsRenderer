@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "log.h"
+#include "renderer.h"
 
 void Scene::Tick() {
     if (!CanRender()) {
@@ -14,11 +15,7 @@ void Scene::Tick() {
             LOG_DEBUG("Scene - mesh object has no mesh");
             continue;
         }
-
         shader_->SetModelMatrix(mesh_obj->GetModelMatrix());
-        shader_->SetMesh(mesh_obj->mesh);
-        for (int i = 0; i < mesh_obj->mesh->model().faces_size(); i++) {
-
-        }
+        Renderer::DrawModel(mesh_obj->mesh->model(), shader_, frame_buffer_);
     }
 }
