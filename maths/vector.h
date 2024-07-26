@@ -68,7 +68,7 @@ struct Vector {
     Vector Normalize() const { return *this / Magnitude(); }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> resize(T fill = T(1)) {
+    Vector<T, NEW_N> Resize(T fill = T(1)) {
         if constexpr (N == NEW_N) return *this;
         return N > NEW_N ? Project<NEW_N>() : Embed<NEW_N>(fill);
     }
