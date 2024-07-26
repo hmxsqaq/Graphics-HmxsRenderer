@@ -32,12 +32,15 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
 void Renderer::DrawModel(const Model &model,
                          const std::shared_ptr<IShader> &shader,
                          const std::shared_ptr<FrameBuffer> &frame_buffer) {
-    for (int i = 0; i < model.faces_size(); i++) {
+    for (int face_index = 0; face_index < model.faces_size(); face_index++) {
         std::array<VertexShaderOutput, 3> vertex_shader_output{};
-        for (const int j : {0, 1, 2}) {
-            VertexShaderInput vertex_shader_input;
-            // todo: fill out vertex_shader_input
-            shader->Vertex(vertex_shader_input, vertex_shader_output[j]);
+        for (const int vertex_index : {0, 1, 2}) {
+            VertexShaderInput vertex_shader_input {
+                .vertex_model_space = model.vertex(face_index, vertex_index),
+                .normal = model.normal(face_index, vertex_index),
+                .uv = model.uv(face_index, vertex_index)
+            };
+            shader->Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
 
         RasterizeTriangle(vertex_shader_output, shader, frame_buffer);

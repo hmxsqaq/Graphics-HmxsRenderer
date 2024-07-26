@@ -20,11 +20,6 @@ public:
     void AddMeshObject(const std::shared_ptr<MeshObject> &gameobject) { mesh_objs_.push_back(gameobject); }
     void ClearMeshObjects() { mesh_objs_.clear(); }
 
-    [[nodiscard]] CameraObject&       camera()            { return *camera_; }
-    [[nodiscard]] const CameraObject& camera() const      { return *camera_; }
-    [[nodiscard]] auto&               gameobjects()       { return mesh_objs_; }
-    [[nodiscard]] const auto&         gameobjects() const { return mesh_objs_; }
-
     [[nodiscard]] bool CanRender() const { return camera_ != nullptr && !mesh_objs_.empty() && shader_ != nullptr && frame_buffer_ != nullptr; }
 private:
     std::shared_ptr<CameraObject> camera_;

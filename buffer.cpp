@@ -87,3 +87,25 @@ float DepthBuffer::GetDepth(const size_t x, const size_t y) const {
 void DepthBuffer::Clear(const float value) const {
     std::fill_n(data_.get(), width_ * height_, value);
 }
+
+void FrameBuffer::Clear() const {
+    color_buffer.Clear();
+    depth_buffer.Clear();
+}
+
+Matrix4x4 FrameBuffer::GetViewportMatrix() const {
+    return GetViewportMatrix(0, 0, color_buffer.width(), color_buffer.height());
+}
+
+Matrix4x4 FrameBuffer::GetViewportMatrix(const size_t x, const size_t y, const size_t w, const size_t h) {
+    const auto x_f = static_cast<float>(x);
+    const auto y_f = static_cast<float>(y);
+    const auto w_f = static_cast<float>(w);
+    const auto h_f = static_cast<float>(h);
+    return {
+        {w_f / 2.0f, 0, 0, x_f + w_f / 2.0f},
+        {0, h_f / 2.0f, 0, y_f + h_f / 2.0f},
+        {0, 0, 0.5f, 0.5f},
+        {0, 0, 0, 1.0f}
+    };
+}

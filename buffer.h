@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include "color.h"
+#include "maths/matrix.h"
 
 /**
  * @brief enum of bytes per pixel.
@@ -78,10 +79,10 @@ struct FrameBuffer {
     FrameBuffer(const size_t width, const size_t height, const uint8_t bpp = RGBA)
         : color_buffer(width, height, bpp), depth_buffer(width, height) {};
 
-    void Clear() const {
-        color_buffer.Clear();
-        depth_buffer.Clear();
-    }
+    void Clear() const;
+
+    [[nodiscard]] Matrix4x4 GetViewportMatrix() const;
+    [[nodiscard]] static Matrix4x4 GetViewportMatrix(size_t x, size_t y, size_t w, size_t h);
 
     ColorBuffer color_buffer;
     DepthBuffer depth_buffer;
