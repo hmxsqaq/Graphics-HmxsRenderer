@@ -130,5 +130,8 @@ using Vector4f = Vector<float, 4>;
 using Vector2i = Vector<int, 2>;
 using Vector3i = Vector<int, 3>;
 using Vector4i = Vector<int, 4>;
+using Vector2s = Vector<size_t, 2>;
+using Vector3s = Vector<size_t, 3>;
+using Vector4s = Vector<size_t, 4>;
 
 #endif //VECTOR_H

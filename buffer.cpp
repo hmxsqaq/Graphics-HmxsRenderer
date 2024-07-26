@@ -94,7 +94,7 @@ void FrameBuffer::Clear() const {
 }
 
 Matrix4x4 FrameBuffer::GetViewportMatrix() const {
-    return GetViewportMatrix(0, 0, color_buffer.width(), color_buffer.height());
+    return GetViewportMatrix(0, 0, width(), height());
 }
 
 Matrix4x4 FrameBuffer::GetViewportMatrix(const size_t x, const size_t y, const size_t w, const size_t h) {

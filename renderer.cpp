@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include <cmath>
+#include "log.h"
 
 void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer) {
     bool steep = false;
@@ -42,14 +43,27 @@ void Renderer::DrawModel(const Model &model,
             };
             shader->Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
-
         RasterizeTriangle(vertex_shader_output, shader, frame_buffer);
     }
 }
 
-void Renderer::RasterizeTriangle(const std::array<VertexShaderOutput, 3> &array,
+void Renderer::RasterizeTriangle(const std::array<VertexShaderOutput, 3> &triangle,
                                  const std::shared_ptr<IShader> &shared,
                                  const std::shared_ptr<FrameBuffer> &frame_buffer) {
-
+    // create bounding box
+    Vector2s box_min = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
+    Vector2s box_max = {std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::min()};
+    for (const auto &vertex : triangle) {
+        box_min[0] = std::min(box_min[0], static_cast<size_t>(vertex.vertex_screen_space[0]));
+        box_min[1] = std::min(box_min[1], static_cast<size_t>(vertex.vertex_screen_space[1]));
+        box_max[0] = std::max(box_max[0], static_cast<size_t>(vertex.vertex_screen_space[0]));
+        box_max[1] = std::max(box_max[1], static_cast<size_t>(vertex.vertex_screen_space[1]));
+    }
+    // ensure bounding box is within the frame buffer
+    box_min[0] = std::max(box_min[0], static_cast<size_t>(0));
+    box_min[1] = std::max(box_min[1], static_cast<size_t>(0));
+    box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
+    box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
+    LOG_DEBUG("Bounding Box: " + box_min.ToString() + " " + box_max.ToString());
 }
 

@@ -84,6 +84,9 @@ struct FrameBuffer {
     [[nodiscard]] Matrix4x4 GetViewportMatrix() const;
     [[nodiscard]] static Matrix4x4 GetViewportMatrix(size_t x, size_t y, size_t w, size_t h);
 
+    [[nodiscard]] size_t width() const { return color_buffer.width(); }
+    [[nodiscard]] size_t height() const { return color_buffer.height(); }
+
     ColorBuffer color_buffer;
     DepthBuffer depth_buffer;
 };
