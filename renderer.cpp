@@ -34,7 +34,7 @@ void Renderer::DrawModel(const Model &model,
                          const std::shared_ptr<IShader> &shader,
                          const std::shared_ptr<FrameBuffer> &frame_buffer) {
     for (int face_index = 0; face_index < model.faces_size(); face_index++) {
-        std::array<VertexShaderOutput, 3> vertex_shader_output{};
+        std::array<Triangle, 3> vertex_shader_output{};
         for (const int vertex_index : {0, 1, 2}) {
             VertexShaderInput vertex_shader_input {
                 .vertex_model_space = model.vertex(face_index, vertex_index),
@@ -47,7 +47,7 @@ void Renderer::DrawModel(const Model &model,
     }
 }
 
-void Renderer::RasterizeTriangle(const std::array<VertexShaderOutput, 3> &triangle,
+void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
                                  const std::shared_ptr<IShader> &shared,
                                  const std::shared_ptr<FrameBuffer> &frame_buffer) {
     // create bounding box
@@ -65,5 +65,42 @@ void Renderer::RasterizeTriangle(const std::array<VertexShaderOutput, 3> &triang
     box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
     box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
     LOG_DEBUG("Bounding Box: " + box_min.ToString() + " " + box_max.ToString());
+#pragma omp parallel for
+    for (size_t x = box_min[0]; x <= box_max[0]; x++) {
+        for (size_t y = box_min[1]; y <= box_max[1]; y++) {
+            const Vector3f bc_screen = GetBarycentric2d(triangle, {static_cast<float>(x), static_cast<float>(y)});
+            if (bc_screen[0] < 0 || bc_screen[1] < 0 || bc_screen[2] < 0) continue; // triangle test
+            // inside the triangle
+            Vector3f bc_clip = {bc_screen[0] / triangle[0].vertex_clip_space[3],
+                                bc_screen[1] / triangle[1].vertex_clip_space[3],
+                                bc_screen[2] / triangle[2].vertex_clip_space[3]};
+            bc_clip = bc_clip / (bc_clip[0] + bc_clip[1] + bc_clip[2]); // perspective correction
+            float depth = triangle[0].vertex_clip_space[2] * bc_clip[0] +
+                          triangle[1].vertex_clip_space[2] * bc_clip[1] +
+                          triangle[2].vertex_clip_space[2] * bc_clip[2];
+            if (depth > frame_buffer->depth_buffer.GetDepth(x, y)) continue; // depth test
+            // depth test passed
+            Color color;
+            FragmentShaderInput fragment_shader_input {
+
+            };
+            if (!shared->Fragment(fragment_shader_input, color)) continue; // fragment shader test
+            // fragment shader passed
+            frame_buffer->color_buffer.SetPixel(x, y, color);
+            frame_buffer->depth_buffer.SetDepth(x, y, depth);
+        }
+    }
+}
+
+Vector3f Renderer::GetBarycentric2d(const std::array<Triangle, 3> &triangle, const Vector2f &p) {
+    const float x0 = triangle[0].vertex_screen_space[0], y0 = triangle[0].vertex_screen_space[1];
+    const float x1 = triangle[1].vertex_screen_space[0], y1 = triangle[1].vertex_screen_space[1];
+    const float x2 = triangle[2].vertex_screen_space[0], y2 = triangle[2].vertex_screen_space[1];
+    const float twice_area = x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1);
+    if (std::abs(twice_area) < 1e-2) return {-1, 1, 1};
+    const float u = (p[0] * (y1 - y2) + p[1] * (x2 - x1) + x1 * y2 - x2 * y1) / twice_area;
+    const float v = (p[0] * (y2 - y0) + p[1] * (x0 - x2) + x2 * y0 - x0 * y2) / twice_area;
+    const float w = 1 - u - v;
+    return {u, v, w};
 }
 

@@ -61,7 +61,7 @@ public:
     void SetDepth(size_t x, size_t y, float depth) const;
     [[nodiscard]] float GetDepth(size_t x, size_t y) const;
 
-    void Clear(float value = 1.0f) const;
+    void Clear(float value = std::numeric_limits<float>::max()) const;
 
     [[nodiscard]] size_t width() const { return width_; }
     [[nodiscard]] size_t height() const { return height_; }
@@ -76,8 +76,7 @@ private:
 };
 
 struct FrameBuffer {
-    FrameBuffer(const size_t width, const size_t height, const uint8_t bpp = RGBA)
-        : color_buffer(width, height, bpp), depth_buffer(width, height) {};
+    FrameBuffer(const size_t width, const size_t height, const uint8_t bpp = RGBA);;
 
     void Clear() const;
 

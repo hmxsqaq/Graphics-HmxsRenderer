@@ -10,7 +10,7 @@ struct VertexShaderInput {
     Vector2f uv;
 };
 
-struct VertexShaderOutput {
+struct Triangle {
     Vector4f vertex_clip_space;
     Vector3f vertex_view_space;
     Vector2f vertex_screen_space;
@@ -34,7 +34,7 @@ struct IShader {
     [[nodiscard]] Matrix4x4 GetProjectionMatrix() const { return projection_matrix_; }
     [[nodiscard]] Matrix4x4 GetViewportMatrix() const { return viewport_matrix_; }
 
-    virtual void Vertex(const VertexShaderInput& in, VertexShaderOutput& out) = 0;
+    virtual void Vertex(const VertexShaderInput& in, Triangle& out) = 0;
     virtual bool Fragment(const FragmentShaderInput& in, Color& out) = 0;
 
 private:

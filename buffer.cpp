@@ -1,6 +1,7 @@
 #include "buffer.h"
 #include <algorithm>
 
+// ColorBuffer
 ColorBuffer::ColorBuffer()
     : width_(0), height_(0), bpp_(0), data_(nullptr) {
 }
@@ -9,6 +10,7 @@ ColorBuffer::ColorBuffer(const size_t width, const size_t height, const uint8_t 
     : width_(width), height_(height), bpp_(bpp), data_(nullptr) {
     assert(bpp == GRAYSCALE || bpp == RGB || bpp == RGBA);
     data_ = std::make_unique<std::uint8_t[]>(width * height * bpp);
+    Clear();
 }
 
 std::uint8_t& ColorBuffer::operator[](const size_t index) {
@@ -55,6 +57,7 @@ void ColorBuffer::Clear(const uint8_t value) const {
     std::fill_n(data_.get(), width_ * height_ * bpp_, value);
 }
 
+// DepthBuffer
 DepthBuffer::DepthBuffer()
     : width_(0), height_(0), data_(nullptr) {
 }
@@ -62,6 +65,7 @@ DepthBuffer::DepthBuffer()
 DepthBuffer::DepthBuffer(const size_t width, const size_t height)
     : width_(width), height_(height), data_(nullptr) {
     data_ = std::make_unique<float[]>(width * height);
+    Clear();
 }
 
 float& DepthBuffer::operator[](const size_t index) {
@@ -87,6 +91,10 @@ float DepthBuffer::GetDepth(const size_t x, const size_t y) const {
 void DepthBuffer::Clear(const float value) const {
     std::fill_n(data_.get(), width_ * height_, value);
 }
+
+// FrameBuffer
+FrameBuffer::FrameBuffer(const size_t width, const size_t height, const uint8_t bpp)
+    : color_buffer(width, height, bpp), depth_buffer(width, height) {}
 
 void FrameBuffer::Clear() const {
     color_buffer.Clear();
