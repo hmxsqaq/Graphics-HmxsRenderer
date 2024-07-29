@@ -27,7 +27,7 @@ struct FragmentShaderInput {
 
 struct Light {
     Vector3f direction;
-    float intensity{};
+    Vector3f intensity;
 };
 
 struct IShader {
@@ -37,19 +37,20 @@ struct IShader {
     void SetViewMatrix(const Matrix4x4& view_matrix) { view_matrix_ = view_matrix; }
     void SetProjectionMatrix(const Matrix4x4& projection_matrix) { projection_matrix_ = projection_matrix; }
     void SetViewportMatrix(const Matrix4x4& viewport_matrix) { viewport_matrix_ = viewport_matrix; }
-    [[nodiscard]] Matrix4x4 GetModelMatrix() const { return model_matrix_; }
-    [[nodiscard]] Matrix4x4 GetViewMatrix() const { return view_matrix_; }
-    [[nodiscard]] Matrix4x4 GetProjectionMatrix() const { return projection_matrix_; }
-    [[nodiscard]] Matrix4x4 GetViewportMatrix() const { return viewport_matrix_; }
+    [[nodiscard]] Matrix4x4 model_matrix() const { return model_matrix_; }
+    [[nodiscard]] Matrix4x4 view_matrix() const { return view_matrix_; }
+    [[nodiscard]] Matrix4x4 projection_matrix() const { return projection_matrix_; }
+    [[nodiscard]] Matrix4x4 viewport_matrix() const { return viewport_matrix_; }
 
-    void AddLight(const Light light) { lights_.push_back(light); }
+    void AddLight(const Light &light) { lights_.push_back(light); }
     void AddLights(const std::vector<Light>& lights) { lights_.insert(lights_.end(), lights.begin(), lights.end()); }
     void ClearLights() { lights_.clear(); }
+    void NormalizeLights();
 
     virtual void Vertex(const VertexShaderInput& in, Triangle& out) = 0;
     virtual bool Fragment(const FragmentShaderInput& in, Color& out) = 0;
 
-private:
+protected:
     Matrix4x4 model_matrix_;
     Matrix4x4 view_matrix_;
     Matrix4x4 projection_matrix_;
@@ -58,17 +59,8 @@ private:
 };
 
 struct TestShader final : IShader {
-    void Vertex(const VertexShaderInput& in, Triangle& out) override {
-
-    }
-
-    bool Fragment(const FragmentShaderInput& in, Color& out) override {
-        out[0] = 255;
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = 255;
-        return true;
-    }
+    void Vertex(const VertexShaderInput& in, Triangle& out) override;
+    bool Fragment(const FragmentShaderInput& in, Color& out) override;
 };
 
 #endif //SHADER_H

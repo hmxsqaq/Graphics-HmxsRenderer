@@ -15,6 +15,13 @@ struct Color {
 
     std::uint8_t& operator[](const int index)       { assert(index >= 0 && index < 4); return bgra[index]; }
     std::uint8_t  operator[](const int index) const { assert(index >= 0 && index < 4); return bgra[index]; }
+    Color operator*(const double scalar) const {
+        return {static_cast<std::uint8_t>(bgra[0] * scalar),
+                static_cast<std::uint8_t>(bgra[1] * scalar),
+                static_cast<std::uint8_t>(bgra[2] * scalar),
+                static_cast<std::uint8_t>(bgra[3] * scalar)};
+    }
+
     [[nodiscard]] std::uint8_t B() const { return bgra[0]; }
     [[nodiscard]] std::uint8_t G() const { return bgra[1]; }
     [[nodiscard]] std::uint8_t R() const { return bgra[2]; }

@@ -68,13 +68,13 @@ struct Vector {
     Vector Normalize() const { return *this / Magnitude(); }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> Resize(T fill = T(1)) {
+    Vector<T, NEW_N> Resize(T fill = T(1)) const {
         if constexpr (N == NEW_N) return *this;
         return N > NEW_N ? Project<NEW_N>() : Embed<NEW_N>(fill);
     }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> Embed(T fill = T(1)) {
+    Vector<T, NEW_N> Embed(T fill = T(1)) const {
         assert(N <= NEW_N);
         Vector<T, NEW_N> ret;
         for (size_t i = 0; i < N; ++i) ret[i] = data[i];
@@ -83,7 +83,7 @@ struct Vector {
     }
 
     template<size_t NEW_N>
-    Vector<T, NEW_N> Project() {
+    Vector<T, NEW_N> Project() const {
         assert(N >= NEW_N);
         Vector<T, NEW_N> ret;
         for (size_t i = 0; i < NEW_N; ++i) ret[i] = data[i];

@@ -65,7 +65,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
     box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
     box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
 
-#pragma omp parallel for
+// #pragma omp parallel for
     for (size_t x = box_min[0]; x <= box_max[0]; x++) {
         for (size_t y = box_min[1]; y <= box_max[1]; y++) {
             const Vector3f bc_screen = GetBarycentric2d(triangle, {static_cast<float>(x), static_cast<float>(y)});
@@ -83,7 +83,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
             Color color;
             FragmentShaderInput fragment_shader_input {
                 .interpolated_vertex_view_space = Vector3f::Interpolate(triangle[0].vertex_view_space, triangle[1].vertex_view_space, triangle[2].vertex_view_space, bc_clip),
-                .interpolated_normal = Vector3f::Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip),
+                .interpolated_normal = Vector3f::Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip).Normalize(),
                 .interpolated_uv = Vector2f::Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
             };
             if (!shader->Fragment(fragment_shader_input, color)) continue; // fragment shader test

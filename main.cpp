@@ -9,6 +9,14 @@
 
 constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
+Light light1 = {
+    .direction = {1, 1, 1},
+    .intensity = {1, 1, 1}
+};
+Light light2 = {
+    .direction = {-1, -1, -1},
+    .intensity = {1, 1, 1}
+};
 
 int main() {
     Log::Instance().SetLogLevel(Log::Level::LOG_DEBUG);
@@ -20,11 +28,20 @@ int main() {
     };
 
     const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
+
     const auto camera = std::make_shared<CameraObject>();
+    camera->SetPosition({0, 0, 10});
+
     const auto shader = std::make_shared<TestShader>();
+    shader->AddLights({light1, light2});
+
     Scene scene(camera, shader, frame_buffer);
-    for (const auto &model_path : model_list)
-        scene.AddMeshObject(std::make_shared<MeshObject>(model_path));
+
+    for (const auto &model_path : model_list) {
+        const auto mesh_obj = std::make_shared<MeshObject>();
+        mesh_obj->mesh = std::make_shared<Mesh>(model_path);
+        scene.AddMeshObject(mesh_obj);
+    }
 
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.OpenWnd(kWidth, kHeigh);

@@ -44,9 +44,9 @@ private:
 
 class Camera : public Component {
 public:
-    Camera()    : Component("Camera") { }
+    Camera() : Component("Camera") { }
     explicit Camera(const float fov, const float aspect_ratio, const float z_near, const float z_far)
-                : Component("Camera"), fov(fov), aspect_ratio(aspect_ratio), z_near(z_near), z_far(z_far) { }
+        : Component("Camera"), fov(fov), aspect_ratio(aspect_ratio), z_near(z_near), z_far(z_far) { }
 
     [[nodiscard]] Matrix4x4 GetProjectionMatrix() const;
 
@@ -56,26 +56,27 @@ public:
     float z_far {1000.0f};
 };
 
+
 struct GameObject {
     Transform transform;
+
+    void SetPosition(const Vector3f& position) { transform.position = position; }
+    void SetRotation(const Vector3f& rotation) { transform.rotation = rotation; }
+    void SetScale(const Vector3f& scale) { transform.scale = scale; }
+
+    [[nodiscard]] Vector3f GetPosition() const { return transform.position; }
+    [[nodiscard]] Vector3f GetRotation() const { return transform.rotation; }
+    [[nodiscard]] Vector3f GetScale() const { return transform.scale; }
 
     [[nodiscard]] Matrix4x4 GetModelMatrix() const { return transform.GetModelMatrix(); }
 };
 
 struct MeshObject : GameObject {
     std::shared_ptr<Mesh> mesh;
-
-    MeshObject() : mesh(std::make_shared<Mesh>()) { }
-    explicit MeshObject(const std::shared_ptr<Model>& model) : mesh(std::make_shared<Mesh>(model)) { }
-    explicit MeshObject(const std::string& filename) : mesh(std::make_shared<Mesh>(filename)) { }
 };
 
 struct CameraObject : GameObject {
     Camera camera;
-
-    CameraObject() : camera(Camera()) { }
-    explicit CameraObject(const float fov, const float aspect_ratio, const float z_near, const float z_far)
-        : camera(fov, aspect_ratio, z_near, z_far) { }
 
     [[nodiscard]] Matrix4x4 GetViewMatrix() const;
     [[nodiscard]] Matrix4x4 GetProjectionMatrix() const { return camera.GetProjectionMatrix(); }
