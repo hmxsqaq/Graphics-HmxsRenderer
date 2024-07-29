@@ -100,6 +100,10 @@ struct Vector {
         });
     }
 
+    static Vector Interpolate(const Vector &v1, const Vector &v2, const Vector &v3, const Vector<T, 3> &bc, float weight = 1.0f) {
+        return (v1 * bc[0] + v2 * bc[1] + v3 * bc[2]) / weight;
+    }
+
     [[nodiscard]] std::string ToString() const {
         std::ostringstream oss;
         oss << "[";

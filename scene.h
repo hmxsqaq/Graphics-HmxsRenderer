@@ -12,7 +12,7 @@ public:
         const std::shared_ptr<FrameBuffer> &frame_buffer = nullptr)
         : camera_(camera), shader_(shader), frame_buffer_(frame_buffer) { }
 
-    void Tick();
+    void Render() const;
 
     void SetCamera(const std::shared_ptr<CameraObject> &camera) { camera_ = camera; }
     void SetShader(const std::shared_ptr<IShader> &shader) { shader_ = shader; }

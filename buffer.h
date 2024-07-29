@@ -76,9 +76,9 @@ private:
 };
 
 struct FrameBuffer {
-    FrameBuffer(const size_t width, const size_t height, const uint8_t bpp = RGBA);;
+    FrameBuffer(size_t width, size_t height, uint8_t bpp = RGBA);;
 
-    void Clear() const;
+    void Clear(uint8_t default_color = 0, float default_depth = std::numeric_limits<float>::max()) const;
 
     [[nodiscard]] Matrix4x4 GetViewportMatrix() const;
     [[nodiscard]] static Matrix4x4 GetViewportMatrix(size_t x, size_t y, size_t w, size_t h);

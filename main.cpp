@@ -1,12 +1,11 @@
 #include "buffer.h"
-#include "renderer.h"
 #include "win32_wnd.h"
 #include "maths/maths.h"
 #include <iostream>
-
 #include "component-gameobject.h"
 #include "log.h"
 #include "model.h"
+#include "scene.h"
 
 constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
@@ -14,19 +13,28 @@ constexpr int kHeigh = 500;
 int main() {
     Log::Instance().SetLogLevel(Log::Level::LOG_DEBUG);
     Log::Instance().SetLogFile("output.log", std::ios::out);
-    const auto model = std::make_shared<Model>("african_head.obj");
-    MeshObject mesh_object(model);
-    // ColorBuffer frame_buffer(kWidth, kHeigh, GRAYSCALE);
-    // Vector2f p0{0, 0}, p1{kWidth - 1, kHeigh - 1};
-    // Win32Wnd window("Hmxs", "HmxsRenderer");
-    // window.OpenWnd(kWidth, kHeigh);
-    // while (window.is_running()) {
-    //     Renderer::DrawLine(p0, p1, {255, 0, 0, 255}, frame_buffer);
-    //     window.PushBuffer(frame_buffer);
-    //     window.PushText("Hello, Hmxs!");
-    //     window.UpdateWnd();
-    //     frame_buffer.Clear(0);
-    //     Win32Wnd::HandleMsg();
-    // }
+
+    const std::vector<std::string> model_list = {
+        "../assets/african_head/african_head.obj",
+        "../assets/african_head/african_head_eye_inner.obj",
+    };
+
+    const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
+    const auto camera = std::make_shared<CameraObject>();
+    const auto shader = std::make_shared<TestShader>();
+    Scene scene(camera, shader, frame_buffer);
+    for (const auto &model_path : model_list)
+        scene.AddMeshObject(std::make_shared<MeshObject>(model_path));
+
+    Win32Wnd window("Hmxs", "HmxsRenderer");
+    window.OpenWnd(kWidth, kHeigh);
+    while (window.is_running()) {
+        scene.Render();
+        window.PushBuffer(frame_buffer->color_buffer);
+        window.PushText("Hello!");
+        window.UpdateWnd();
+        frame_buffer->Clear();
+        Win32Wnd::HandleMsg();
+    }
     return 0;
 }

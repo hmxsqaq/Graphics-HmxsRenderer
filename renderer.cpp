@@ -48,7 +48,7 @@ void Renderer::DrawModel(const Model &model,
 }
 
 void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
-                                 const std::shared_ptr<IShader> &shared,
+                                 const std::shared_ptr<IShader> &shader,
                                  const std::shared_ptr<FrameBuffer> &frame_buffer) {
     // create bounding box
     Vector2s box_min = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
@@ -64,7 +64,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
     box_min[1] = std::max(box_min[1], static_cast<size_t>(0));
     box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
     box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
-    LOG_DEBUG("Bounding Box: " + box_min.ToString() + " " + box_max.ToString());
+
 #pragma omp parallel for
     for (size_t x = box_min[0]; x <= box_max[0]; x++) {
         for (size_t y = box_min[1]; y <= box_max[1]; y++) {
@@ -75,16 +75,18 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
                                 bc_screen[1] / triangle[1].vertex_clip_space[3],
                                 bc_screen[2] / triangle[2].vertex_clip_space[3]};
             bc_clip = bc_clip / (bc_clip[0] + bc_clip[1] + bc_clip[2]); // perspective correction
-            float depth = triangle[0].vertex_clip_space[2] * bc_clip[0] +
-                          triangle[1].vertex_clip_space[2] * bc_clip[1] +
-                          triangle[2].vertex_clip_space[2] * bc_clip[2];
+            const float depth = triangle[0].vertex_clip_space[2] * bc_clip[0] +
+                                triangle[1].vertex_clip_space[2] * bc_clip[1] +
+                                triangle[2].vertex_clip_space[2] * bc_clip[2];
             if (depth > frame_buffer->depth_buffer.GetDepth(x, y)) continue; // depth test
             // depth test passed
             Color color;
             FragmentShaderInput fragment_shader_input {
-
+                .interpolated_vertex_view_space = Vector3f::Interpolate(triangle[0].vertex_view_space, triangle[1].vertex_view_space, triangle[2].vertex_view_space, bc_clip),
+                .interpolated_normal = Vector3f::Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip),
+                .interpolated_uv = Vector2f::Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
             };
-            if (!shared->Fragment(fragment_shader_input, color)) continue; // fragment shader test
+            if (!shader->Fragment(fragment_shader_input, color)) continue; // fragment shader test
             // fragment shader passed
             frame_buffer->color_buffer.SetPixel(x, y, color);
             frame_buffer->depth_buffer.SetDepth(x, y, depth);

@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <string>
-#include <iostream>
 #include "buffer.h"
 
 #define RLE_MAX_CHUNK_LENGTH 128

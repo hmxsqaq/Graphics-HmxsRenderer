@@ -96,9 +96,9 @@ void DepthBuffer::Clear(const float value) const {
 FrameBuffer::FrameBuffer(const size_t width, const size_t height, const uint8_t bpp)
     : color_buffer(width, height, bpp), depth_buffer(width, height) {}
 
-void FrameBuffer::Clear() const {
-    color_buffer.Clear();
-    depth_buffer.Clear();
+void FrameBuffer::Clear(const uint8_t default_color, const float default_depth) const {
+    color_buffer.Clear(default_color);
+    depth_buffer.Clear(default_depth);
 }
 
 Matrix4x4 FrameBuffer::GetViewportMatrix() const {

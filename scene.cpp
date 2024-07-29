@@ -2,7 +2,7 @@
 #include "log.h"
 #include "renderer.h"
 
-void Scene::Tick() {
+void Scene::Render() const {
     if (!CanRender()) {
         LOG_DEBUG("Scene - scene are not ready to render");
         return;
@@ -11,12 +11,14 @@ void Scene::Tick() {
     shader_->SetViewMatrix(camera_->GetViewMatrix());
     shader_->SetProjectionMatrix(camera_->GetProjectionMatrix());
     shader_->SetViewportMatrix(frame_buffer_->GetViewportMatrix());
-    LOG_DEBUG("ViewMatrix: \n" + shader_->GetViewMatrix().ToString());
-    LOG_DEBUG("ProjectionMatrix: \n" + shader_->GetProjectionMatrix().ToString());
-    LOG_DEBUG("ViewportMatrix: \n" + shader_->GetViewportMatrix().ToString());
+
+    LOG_DEBUG("\nViewMatrix:" + shader_->GetViewMatrix().ToString());
+    LOG_DEBUG("\nProjectionMatrix:" + shader_->GetProjectionMatrix().ToString());
+    LOG_DEBUG("\nViewportMatrix:" + shader_->GetViewportMatrix().ToString());
+
     for (const auto& mesh_obj : mesh_objs_) {
         if (mesh_obj->mesh == nullptr) {
-            LOG_DEBUG("Scene - mesh object has no mesh");
+            LOG_ERROR("Scene - mesh object has no mesh");
             continue;
         }
         shader_->SetModelMatrix(mesh_obj->GetModelMatrix());
