@@ -30,7 +30,8 @@ int main() {
     const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
 
     const auto camera = std::make_shared<CameraObject>();
-    camera->SetPosition({0, 0, 10});
+    camera->camera = Camera(60.0f, 1.0f, 0.1f, 1000.0f);
+    camera->SetPosition({0, 0, 5});
 
     const auto shader = std::make_shared<TestShader>();
     shader->AddLights({light1, light2});
@@ -44,6 +45,7 @@ int main() {
     }
 
     Win32Wnd window("Hmxs", "HmxsRenderer");
+    window.SetTextFont("SF Pro Display", 20);
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
         scene.Render();

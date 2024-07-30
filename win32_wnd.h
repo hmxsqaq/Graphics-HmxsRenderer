@@ -25,13 +25,20 @@ public:
     void PushText(const std::string &text);
     void UpdateWnd() const;
 
+    void SetTextFont(const std::string &font_name, int font_size);
+    void SetTextColorRef(const COLORREF &color) { text_color_ = color; }
+    void SetTextOffset(const Vector2i &offset) { text_offset_ = offset; }
+
+    void RegisterKeyCallback(const std::function<void(Win32Wnd*, KeyCode)> &callback) { key_callbacks_.push_back(callback); }
+    void RegisterMouseCallback(const std::function<void(Win32Wnd*, MouseCode)> &callback) { mouse_callbacks_.push_back(callback); }
+    void RegisterScrollCallback(const std::function<void(Win32Wnd*, double)> &callback) { scroll_callbacks_.push_back(callback); }
+    void ClearKeyCallbacks() { key_callbacks_.clear(); }
+    void ClearMouseCallbacks() { mouse_callbacks_.clear(); }
+    void ClearScrollCallbacks() { scroll_callbacks_.clear(); }
+
     [[nodiscard]] bool is_running() const { return is_running_; }
 
     static void HandleMsg();
-
-    std::function<void(Win32Wnd*, KeyCode)> key_callback;
-    std::function<void(Win32Wnd*, MouseCode)> mouse_callback;
-    std::function<void(Win32Wnd*, double)> scroll_callback;
 
 private:
     void RegisterWndClass() const;
@@ -58,7 +65,14 @@ private:
     HDC text_dc_;           // text device context
     HBITMAP text_bitmap_;   // text bitmap
     SIZE text_size_;        // text size
+    COLORREF text_color_;   // text color
+    Vector2i text_offset_;  // text offset
+
     bool is_running_;
+
+    std::vector<std::function<void(Win32Wnd*, KeyCode)>> key_callbacks_;
+    std::vector<std::function<void(Win32Wnd*, MouseCode)>> mouse_callbacks_;
+    std::vector<std::function<void(Win32Wnd*, double)>> scroll_callbacks_;
 };
 
 #endif //WIN32WND_H

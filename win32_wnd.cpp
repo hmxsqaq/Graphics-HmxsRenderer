@@ -1,12 +1,12 @@
 #include "win32_wnd.h"
 #include <algorithm>
+#include "log.h"
 
 Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
-    : class_name_(class_name), window_title_(window_title), width_(0), height_(0),
-      hinstance_(GetModuleHandle(nullptr)), hwnd_(nullptr),
-      pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr),
-      text_font_(nullptr), text_dc_(nullptr), text_bitmap_(nullptr), text_size_{},
-      is_running_(false) {
+    : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
+        hwnd_(nullptr), pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr), text_font_(nullptr),
+        text_dc_(nullptr), text_bitmap_(nullptr), text_size_({}), text_color_(RGB(255, 255, 255)), text_offset_({10, 10}),
+        is_running_(false) {
     assert(hinstance_ != nullptr);
 }
 
@@ -23,7 +23,6 @@ void Win32Wnd::OpenWnd(const int width, const int height) {
     CreateWnd();
     CreateMemoryDC();
     CreateDeviceIndependentBitmap();
-
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)); // Store the pointer to the Win32Wnd object for ProcessMsg
     ShowWindow(hwnd_, SW_SHOW);
     is_running_ = true;
@@ -56,13 +55,12 @@ void Win32Wnd::PushBuffer(const ColorBuffer &buffer) const {
 }
 
 void Win32Wnd::PushText(const std::string &text) {
+    if (text_font_ == nullptr) SetTextFont("Arial", 16);
     HDC hdc = GetDC(hwnd_);
     text_dc_ = CreateCompatibleDC(hdc);
     SetBkMode(text_dc_, TRANSPARENT);
-    SetTextColor(text_dc_, RGB(255, 0, 0));
-    HFONT font = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "LXGW WenKai");
-    SelectObject(text_dc_, font);
+    SetTextColor(text_dc_, text_color_);
+    SelectObject(text_dc_, text_font_);
     RECT rect = {0, 0, 0, 0};
     DrawText(text_dc_, text.c_str(), -1, &rect, DT_CALCRECT);
     text_size_.cx = rect.right - rect.left;
@@ -76,9 +74,22 @@ void Win32Wnd::PushText(const std::string &text) {
 
 void Win32Wnd::UpdateWnd() const {
     HDC hdc = GetDC(hwnd_);
-    BitBlt(pixels_dc_, 0, 0, text_size_.cx, text_size_.cy, text_dc_, 0, 0, SRCCOPY);
+    BitBlt(pixels_dc_, text_offset_[0], text_offset_[1], text_size_.cx, text_size_.cy, text_dc_, 0, 0, SRCCOPY);
     BitBlt(hdc, 0, 0, width_, height_, pixels_dc_, 0, 0, SRCCOPY);
     ReleaseDC(hwnd_, hdc);
+}
+
+void Win32Wnd::SetTextFont(const std::string &font_name, int font_size) {
+    text_font_ = CreateFont(font_size, 0, 0, 0,
+                            FW_NORMAL,
+                            FALSE, FALSE, FALSE,
+                            DEFAULT_CHARSET,
+                            OUT_DEFAULT_PRECIS,
+                            CLIP_DEFAULT_PRECIS,
+                            DEFAULT_QUALITY,
+                            DEFAULT_PITCH | FF_DONTCARE,
+                            font_name.c_str());
+    if (text_font_ == nullptr) LOG_WARNING("Win32Wnd - failed to create font: " + font_name);
 }
 
 void Win32Wnd::HandleMsg() {
@@ -179,14 +190,23 @@ void Win32Wnd::ProcessKey(Win32Wnd* windows, const WPARAM wParam) {
         case VK_SPACE:  key_code = SPACE;   break;
         default:                            return;
     }
-    if (windows->key_callback) windows->key_callback(windows, key_code);
+    if (!windows->key_callbacks_.empty()) {
+        for (auto& callback: windows->key_callbacks_)
+            callback(windows, key_code);
+    }
 }
 
 void Win32Wnd::ProcessMouse(Win32Wnd* windows, const MouseCode mouse_code) {
-    if (windows->mouse_callback) windows->mouse_callback(windows, mouse_code);
+    if (!windows->mouse_callbacks_.empty()) {
+        for (auto& callback: windows->mouse_callbacks_)
+            callback(windows, mouse_code);
+    }
 }
 
 void Win32Wnd::ProcessScroll(Win32Wnd* windows, const WPARAM wParam) {
     const double offset = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-    if (windows->scroll_callback) windows->scroll_callback(windows, offset);
+    if (!windows->scroll_callbacks_.empty()) {
+        for (auto& callback: windows->scroll_callbacks_)
+            callback(windows, offset);
+    }
 }

@@ -43,7 +43,7 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
             return nullptr;
         }
     } else {
-        LOG_ERROR("TGHandler - unknown file format: " + std::to_string(header.data_type_code));
+        LOG_ERROR("TGAReader - unknown file format: " + std::to_string(header.data_type_code));
         return nullptr;
     }
 
