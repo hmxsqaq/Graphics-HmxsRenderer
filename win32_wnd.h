@@ -36,6 +36,9 @@ public:
     void ClearMouseCallbacks() { mouse_callbacks_.clear(); }
     void ClearScrollCallbacks() { scroll_callbacks_.clear(); }
 
+    void SetUserData(const std::shared_ptr<void> &data) { user_data_ = data; }
+    [[nodiscard]] std::shared_ptr<void> GetUserData() const { return user_data_; }
+
     [[nodiscard]] bool is_running() const { return is_running_; }
 
     static void HandleMsg();
@@ -69,6 +72,8 @@ private:
     Vector2i text_offset_;  // text offset
 
     bool is_running_;
+
+    std::shared_ptr<void> user_data_;
 
     std::vector<std::function<void(Win32Wnd*, KeyCode)>> key_callbacks_;
     std::vector<std::function<void(Win32Wnd*, MouseCode)>> mouse_callbacks_;

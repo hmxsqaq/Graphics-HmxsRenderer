@@ -6,7 +6,7 @@ Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
     : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
         hwnd_(nullptr), pixels_dc_(nullptr), pixels_buffer_(nullptr), pixel_bitmap_(nullptr), text_font_(nullptr),
         text_dc_(nullptr), text_bitmap_(nullptr), text_size_({}), text_color_(RGB(255, 255, 255)), text_offset_({10, 10}),
-        is_running_(false) {
+        is_running_(false), user_data_(nullptr) {
     assert(hinstance_ != nullptr);
 }
 

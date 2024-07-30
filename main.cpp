@@ -36,19 +36,20 @@ int main() {
     const auto shader = std::make_shared<TestShader>();
     shader->AddLights({light1, light2});
 
-    Scene scene(camera, shader, frame_buffer);
+    const auto scene = std::make_shared<Scene>(camera, shader, frame_buffer);
 
     for (const auto &model_path : model_list) {
         const auto mesh_obj = std::make_shared<MeshObject>();
         mesh_obj->mesh = std::make_shared<Mesh>(model_path);
-        scene.AddMeshObject(mesh_obj);
+        scene->AddMeshObject(mesh_obj);
     }
 
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.SetTextFont("SF Pro Display", 20);
+    window.SetUserData(scene);
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
-        scene.Render();
+        scene->Render();
         window.PushBuffer(frame_buffer->color_buffer);
         window.PushText("Hello!");
         window.UpdateWnd();
