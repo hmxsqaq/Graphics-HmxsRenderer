@@ -67,5 +67,5 @@ std::unique_ptr<ColorBuffer> Model::LoadTGAImage(const std::string &filename, co
     const size_t dot = filename.find_last_of('.');
     if (dot == std::string::npos) return nullptr;
     const std::string texture_file_name = filename.substr(0, dot) + suffix;
-    return TGAHandler::read_tga_file(texture_file_name);
+    return TGAHandler::ReadTGAFile(texture_file_name);
 }

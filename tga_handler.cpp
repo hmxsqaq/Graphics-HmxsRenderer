@@ -2,7 +2,7 @@
 #include <fstream>
 #include "log.h"
 
-std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filename) {
+std::unique_ptr<ColorBuffer> TGAHandler::ReadTGAFile(const std::string &filename) {
     // open file
     std::ifstream in;
     in.open(filename, std::ios::binary);
@@ -38,7 +38,7 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
             return nullptr;
         }
     } else if (header.data_type_code == 10 || header.data_type_code == 11) {
-        if (!load_rle_data(in, *buffer)) {
+        if (!LoadRLE(in, *buffer)) {
             LOG_ERROR("TGAReader - cannot load RLE data");
             return nullptr;
         }
@@ -60,7 +60,7 @@ std::unique_ptr<ColorBuffer> TGAHandler::read_tga_file(const std::string &filena
     return buffer;
 }
 
-bool TGAHandler::write_tga_file(const std::string &filename, const int width, const int height, const std::uint8_t bpp, const std::uint8_t *data, const bool v_flip, const bool rle) {
+bool TGAHandler::WriteTGAFile(const std::string &filename, const int width, const int height, const std::uint8_t bpp, const std::uint8_t *data, const bool v_flip, const bool rle) {
     constexpr std::uint8_t developer_area_ref[4] = {0, 0, 0, 0};
     constexpr std::uint8_t extension_area_ref[4] = {0, 0, 0, 0};
     constexpr std::uint8_t footer[18] = {'T','R','U','E','V','I','S','I','O','N','-','X','F','I','L','E','.','\0'};
@@ -97,7 +97,7 @@ bool TGAHandler::write_tga_file(const std::string &filename, const int width, co
             LOG_ERROR("TGAWriter - cannot write the TGA data");
             return false;
         }
-    } else if (!unload_rle_data(out, width, height, bpp, data)) {
+    } else if (!UnloadRLE(out, width, height, bpp, data)) {
         LOG_ERROR("TGAWriter - cannot unload RLE data");
         return false;
     }
@@ -123,7 +123,7 @@ bool TGAHandler::write_tga_file(const std::string &filename, const int width, co
     return true;
 }
 
-bool TGAHandler::load_rle_data(std::ifstream &in, ColorBuffer &buffer) {
+bool TGAHandler::LoadRLE(std::ifstream &in, ColorBuffer &buffer) {
     const size_t width = buffer.width(), height = buffer.height();
     const std::uint8_t bpp = buffer.bpp();
     const size_t pixels_count = width * height;
@@ -171,7 +171,7 @@ bool TGAHandler::load_rle_data(std::ifstream &in, ColorBuffer &buffer) {
     return true;
 }
 
-bool TGAHandler::unload_rle_data(std::ofstream &out, const int width, const int height, const std::uint8_t bpp, const std::uint8_t *data) {
+bool TGAHandler::UnloadRLE(std::ofstream &out, const int width, const int height, const std::uint8_t bpp, const std::uint8_t *data) {
     const size_t pixels_count = width * height;
     size_t current_pixel = 0;
     while (current_pixel < pixels_count) {

@@ -34,11 +34,11 @@ class TGAHandler {
 public:
     TGAHandler() = delete;
 
-    static std::unique_ptr<ColorBuffer> read_tga_file(const std::string &filename);
-    static bool write_tga_file(const std::string &filename, int width, int height, std::uint8_t bpp, const std::uint8_t *data, bool v_flip = false, bool rle = true);
+    static std::unique_ptr<ColorBuffer> ReadTGAFile(const std::string &filename);
+    static bool WriteTGAFile(const std::string &filename, int width, int height, std::uint8_t bpp, const std::uint8_t *data, bool v_flip = false, bool rle = true);
 private:
-    static bool load_rle_data(std::ifstream &in, ColorBuffer &buffer);
-    static bool unload_rle_data(std::ofstream &out, int width, int height, std::uint8_t bpp, const std::uint8_t *data);
+    static bool LoadRLE(std::ifstream &in, ColorBuffer &buffer);
+    static bool UnloadRLE(std::ofstream &out, int width, int height, std::uint8_t bpp, const std::uint8_t *data);
 };
 
 #endif //TGA_HANDLER_H
