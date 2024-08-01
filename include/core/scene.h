@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "platform/win32/win32_wnd.h"
 #include "component-gameobject.h"
 #include "ishader.h"
 
@@ -32,6 +33,10 @@ private:
     std::shared_ptr<FrameBuffer> frame_buffer_;
 
     [[nodiscard]] bool CanRender() const { return camera_ != nullptr && !mesh_objs_.empty() && shader_ != nullptr && frame_buffer_ != nullptr; }
+};
+
+struct Callbacks {
+    static void OnKeyPressed(Win32Wnd* windows, KeyCode keycode);
 };
 
 #endif //SCENE_H

@@ -1,8 +1,6 @@
-#include "callbacks.h"
-#include "win32_wnd.h"
-#include "scene.h"
 #include "utility/frame_timer.h"
 #include "utility/log.h"
+#include "scene.h"
 
 constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
@@ -19,9 +17,9 @@ int main() {
     Log::Instance().SetLogLevel(Log::Level::LOG_DEBUG);
     Log::Instance().SetLogFile("output.log", std::ios::out);
 
-    const std::vector<std::string> model_list = {
-        "../assets/african_head/african_head.obj",
-        "../assets/african_head/african_head_eye_inner.obj",
+    const std::vector<std::string> model_name_list = {
+        "/african_head/african_head.obj",
+        "/african_head/african_head_eye_inner.obj",
     };
 
     const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
@@ -35,8 +33,9 @@ int main() {
 
     const auto scene = std::make_shared<Scene>(camera, shader, frame_buffer);
 
-    for (const auto &model_path : model_list) {
+    for (const auto &model_name : model_name_list) {
         const auto mesh_obj = std::make_shared<MeshObject>();
+        const std::string model_path = std::string(ASSETS_PATH) + model_name;
         mesh_obj->mesh = std::make_shared<Mesh>(model_path);
         scene->AddMeshObject(mesh_obj);
     }
