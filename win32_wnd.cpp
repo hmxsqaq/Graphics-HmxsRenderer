@@ -1,6 +1,6 @@
 #include "win32_wnd.h"
 #include <algorithm>
-#include "log.h"
+#include "utility/log.h"
 
 Win32Wnd::Win32Wnd(const LPCSTR &class_name, const LPCSTR &window_title)
     : class_name_(class_name), window_title_(window_title), width_(0), height_(0), hinstance_(GetModuleHandle(nullptr)),
@@ -77,6 +77,10 @@ void Win32Wnd::UpdateWnd() const {
     BitBlt(pixels_dc_, text_offset_[0], text_offset_[1], text_size_.cx, text_size_.cy, text_dc_, 0, 0, SRCCOPY);
     BitBlt(hdc, 0, 0, width_, height_, pixels_dc_, 0, 0, SRCCOPY);
     ReleaseDC(hwnd_, hdc);
+}
+
+void Win32Wnd::CloseWnd() {
+    is_running_ = false;
 }
 
 void Win32Wnd::SetTextFont(const std::string &font_name, int font_size) {

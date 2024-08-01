@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "log.h"
+#include "utility/log.h"
 #include "tga_handler.h"
 
 Model::Model(const std::string &filename) {

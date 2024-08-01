@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "log.h"
+#include "utility/log.h"
 #include "renderer.h"
 
 void Scene::Render() const {

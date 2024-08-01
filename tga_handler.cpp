@@ -1,6 +1,6 @@
 #include "tga_handler.h"
 #include <fstream>
-#include "log.h"
+#include "utility/log.h"
 
 std::unique_ptr<ColorBuffer> TGAHandler::ReadTGAFile(const std::string &filename) {
     // open file

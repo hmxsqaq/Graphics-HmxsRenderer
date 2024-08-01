@@ -1,6 +1,7 @@
+#include "callbacks.h"
 #include "win32_wnd.h"
 #include "scene.h"
-#include "log.h"
+#include "utility/log.h"
 
 constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
@@ -42,6 +43,8 @@ int main() {
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.SetTextFont("SF Pro Display", 20);
     window.SetUserData(scene);
+    window.RegisterKeyCallback(Callbacks::OnKeyPressed);
+
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
         scene->Render();

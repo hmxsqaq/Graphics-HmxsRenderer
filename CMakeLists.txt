@@ -4,6 +4,7 @@ project(Graphics_HmxsRenderer)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Graphics_HmxsRenderer main.cpp
+        utility/log.h
         maths/vector.h
         maths/maths.h
         maths/matrix.h
@@ -18,12 +19,12 @@ add_executable(Graphics_HmxsRenderer main.cpp
         model.h
         tga_handler.cpp
         tga_handler.h
-        log.h
         component-gameobject.cpp
         component-gameobject.h
         ishader.cpp
         ishader.h
         scene.cpp
-        scene.h)
+        scene.h
+        callbacks.h)
 
 set_target_properties(Graphics_HmxsRenderer PROPERTIES WIN32_EXECUTABLE YES)

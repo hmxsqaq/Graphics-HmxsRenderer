@@ -1,6 +1,6 @@
 #include "renderer.h"
 #include <cmath>
-#include "log.h"
+#include "utility/log.h"
 
 void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer) {
     bool steep = false;

@@ -24,6 +24,7 @@ public:
     void PushBuffer(const ColorBuffer &buffer) const;
     void PushText(const std::string &text);
     void UpdateWnd() const;
+    void CloseWnd();
 
     void SetTextFont(const std::string &font_name, int font_size);
     void SetTextColorRef(const COLORREF &color) { text_color_ = color; }
