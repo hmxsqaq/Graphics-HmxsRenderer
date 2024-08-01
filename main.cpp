@@ -1,11 +1,6 @@
-#include "buffer.h"
 #include "win32_wnd.h"
-#include "maths/maths.h"
-#include <iostream>
-#include "component-gameobject.h"
-#include "log.h"
-#include "model.h"
 #include "scene.h"
+#include "log.h"
 
 constexpr int kWidth = 500;
 constexpr int kHeigh = 500;
