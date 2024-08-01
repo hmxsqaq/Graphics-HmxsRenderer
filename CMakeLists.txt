@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Graphics_HmxsRenderer main.cpp
         utility/log.h
+        utility/frame_timer.h
+        utility/frame_timer.cpp
         maths/vector.h
         maths/maths.h
         maths/matrix.h

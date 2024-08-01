@@ -65,7 +65,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
     box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
     box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
 
-// #pragma omp parallel for
+#pragma omp parallel for
     for (size_t x = box_min[0]; x <= box_max[0]; x++) {
         for (size_t y = box_min[1]; y <= box_max[1]; y++) {
             const Vector3f bc_screen = GetBarycentric2d(triangle, {static_cast<float>(x), static_cast<float>(y)});

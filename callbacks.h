@@ -15,10 +15,10 @@ struct Callbacks {
         const auto camera = scene->GetCamera();
         switch (keycode) {
             case A:
-                camera->transform.position[0] -= 0.1f;
+                camera->transform.position[0] += 0.1f;
                 break;
             case D:
-                camera->transform.position[0] += 0.1f;
+                camera->transform.position[0] -= 0.1f;
                 break;
             case W:
                 camera->transform.position[2] -= 0.1f;
@@ -27,10 +27,10 @@ struct Callbacks {
                 camera->transform.position[2] += 0.1f;
                 break;
             case Q:
-                camera->transform.position[1] -= 0.1f;
+                camera->transform.position[1] += 0.1f;
                 break;
             case E:
-                camera->transform.position[1] += 0.1f;
+                camera->transform.position[1] -= 0.1f;
                 break;
             case SPACE:
                 camera->transform.position = {0, 0, 5};

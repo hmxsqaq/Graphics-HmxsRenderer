@@ -1,6 +1,7 @@
 #include "callbacks.h"
 #include "win32_wnd.h"
 #include "scene.h"
+#include "utility/frame_timer.h"
 #include "utility/log.h"
 
 constexpr int kWidth = 500;
@@ -40,6 +41,8 @@ int main() {
         scene->AddMeshObject(mesh_obj);
     }
 
+    FrameTimer frame_timer;
+
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.SetTextFont("SF Pro Display", 20);
     window.SetUserData(scene);
@@ -47,9 +50,11 @@ int main() {
 
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
+        frame_timer.StartFrame();
         scene->Render();
+        frame_timer.EndFrame();
         window.PushBuffer(frame_buffer->color_buffer);
-        window.PushText("Hello!");
+        window.PushText(std::to_string(static_cast<int>(frame_timer.GetFPS())));
         window.UpdateWnd();
         frame_buffer->Clear();
         Win32Wnd::HandleMsg();
