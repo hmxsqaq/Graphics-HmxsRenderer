@@ -2,53 +2,29 @@
 #define TIME_H
 
 #include <chrono>
-#include <numeric>
 
 class FrameTimer {
 public:
-    FrameTimer() {
+    FrameTimer() : frame_count_(0), elapsed_time_(0.0), fps_(0.0) {
         start_time_ = Clock::now();
         last_frame_time_ = start_time_;
     }
 
-    void StartFrame() {
-        last_frame_time_ = Clock::now();
-    }
-
-    void EndFrame() {
+    void Tick() {
         const TimePoint current_time = Clock::now();
-        const Duration frame_duration = current_time - last_frame_time_;
-        const double frame_time = frame_duration.count();
-        frame_times_.push_back(frame_time);
-        if (frame_times_.size() > max_frame_count_) {
-            frame_times_.erase(frame_times_.begin());
+        const Duration delta_time = current_time - last_frame_time_;
+        last_frame_time_ = current_time;
+        elapsed_time_ += delta_time.count();
+        frame_count_++;
+        if (elapsed_time_ >= 1.0) {
+            fps_ = frame_count_ / elapsed_time_;
+            frame_count_ = 0;
+            elapsed_time_ = 0.0;
         }
     }
 
-    void Reset() {
-        start_time_ = Clock::now();
-        last_frame_time_ = start_time_;
-        frame_times_.clear();
-    }
+    [[nodiscard]] double fps() const { return fps_; }
 
-    [[nodiscard]] double GetFPS() const {
-        if (frame_times_.empty()) return 0.0;
-        const double average_frame_time = GetAverageFrameTime();
-        if (average_frame_time == 0.0) return 0.0;
-        return 1.0 / average_frame_time;
-    }
-
-    [[nodiscard]] double GetAverageFrameTime() const {
-        if (frame_times_.empty()) return 0.0;
-        return std::accumulate(frame_times_.begin(), frame_times_.end(), 0.0) / static_cast<double>(frame_times_.size());
-    }
-
-    [[nodiscard]] double GetElapsedTime() const {
-        const Duration elapsed_time = Clock::now() - start_time_;
-        return elapsed_time.count();
-    }
-
-    void SetMaxFrameCount(const size_t max_frame_count) { max_frame_count_ = max_frame_count; }
 private:
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = Clock::time_point;
@@ -56,8 +32,9 @@ private:
 
     TimePoint start_time_;
     TimePoint last_frame_time_;
-    std::vector<double> frame_times_;
-    size_t max_frame_count_ = 100;
+    int frame_count_;
+    double elapsed_time_;
+    double fps_;
 };
 
 #endif //TIME_H

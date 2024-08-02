@@ -40,20 +40,19 @@ int main() {
         scene->AddMeshObject(mesh_obj);
     }
 
-    FrameTimer frame_timer;
-
     Win32Wnd window("Hmxs", "HmxsRenderer");
     window.SetTextFont("SF Pro Display", 20);
     window.SetUserData(scene);
     window.RegisterKeyCallback(Callbacks::OnKeyPressed);
 
+    FrameTimer frame_timer;
+
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
-        frame_timer.StartFrame();
         scene->Render();
-        frame_timer.EndFrame();
+        frame_timer.Tick();
         window.PushBuffer(frame_buffer->color_buffer);
-        window.PushText(std::to_string(static_cast<int>(frame_timer.GetFPS())));
+        window.PushText(std::to_string(frame_timer.fps()));
         window.UpdateWnd();
         frame_buffer->Clear();
         Win32Wnd::HandleMsg();
