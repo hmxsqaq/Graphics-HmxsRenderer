@@ -11,12 +11,9 @@ public:
     Model() = delete;
     explicit Model(const std::string &filename);
 
-    [[nodiscard]] ColorBuffer&       diffuse_map()       { return *diffuse_map_; }
-    [[nodiscard]] const ColorBuffer& diffuse_map() const { return *diffuse_map_; }
-    [[nodiscard]] ColorBuffer&       normal_map()       { return *normal_map_; }
-    [[nodiscard]] const ColorBuffer& normal_map() const { return *normal_map_; }
-    [[nodiscard]] ColorBuffer&       specular_map()       { return *specular_map_; }
-    [[nodiscard]] const ColorBuffer& specular_map() const { return *specular_map_; }
+    [[nodiscard]] const ColorBuffer* diffuse_map() const { return diffuse_map_.get(); }
+    [[nodiscard]] const ColorBuffer* normal_map() const { return normal_map_.get(); }
+    [[nodiscard]] const ColorBuffer* specular_map() const { return specular_map_.get(); }
     [[nodiscard]] size_t vertices_size() const { return vertices_.size(); }
     [[nodiscard]] size_t faces_size() const { return vertex_indices_.size() / 3; }
     [[nodiscard]] Vector3f vertex(const size_t i) const { return vertices_[i]; }

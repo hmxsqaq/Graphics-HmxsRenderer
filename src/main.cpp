@@ -28,7 +28,7 @@ int main() {
     camera->camera = Camera(60.0f, 1.0f, 0.1f, 1000.0f);
     camera->SetPosition({0, 0, 5});
 
-    const auto shader = std::make_shared<TestShader>();
+    const auto shader = std::make_shared<PhongShader>();
     shader->AddLights({light1, light2});
 
     const auto scene = std::make_shared<Scene>(camera, shader, frame_buffer);
@@ -50,12 +50,12 @@ int main() {
     window.OpenWnd(kWidth, kHeigh);
     while (window.is_running()) {
         scene->Render();
-        frame_timer.Tick();
         window.PushBuffer(frame_buffer->color_buffer);
         window.PushText(std::to_string(frame_timer.fps()));
         window.UpdateWnd();
         frame_buffer->Clear();
         Win32Wnd::HandleMsg();
+        frame_timer.Tick();
     }
     return 0;
 }

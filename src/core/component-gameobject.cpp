@@ -68,3 +68,24 @@ Matrix4x4 CameraObject::GetViewMatrix() const {
         {0, 0, 0, 1}
     };
 }
+
+Vector3f CameraObject::GetViewDirection() const {
+    const Vector3f rotation = transform.rotation * M_PI / 180.0f;
+    const Matrix3x3 rotate_x {
+        {1, 0, 0},
+        {0, std::cos(rotation[0]), -std::sin(rotation[0])},
+        {0, std::sin(rotation[0]), std::cos(rotation[0])}
+    };
+    const Matrix3x3 rotate_y {
+        {std::cos(rotation[1]), 0, std::sin(rotation[1])},
+        {0, 1, 0},
+        {-std::sin(rotation[1]), 0, std::cos(rotation[1])}
+    };
+    const Matrix3x3 rotate_z {
+        {std::cos(rotation[2]), -std::sin(rotation[2]), 0},
+        {std::sin(rotation[2]), std::cos(rotation[2]), 0},
+        {0, 0, 1}
+    };
+    const Matrix3x3 rotation_mat = rotate_z * rotate_x * rotate_y;
+    return (rotation_mat * Vector3f {0, 0, -1}).Normalize();
+}

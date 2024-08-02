@@ -24,6 +24,7 @@ struct Vector {
             data[i++] = element;
         }
     }
+    explicit Vector(const std::array<T, N> &array) : data(array) {}
 
     T& operator[](const size_t i)       { assert(i < N); return data[i]; }
     T  operator[](const size_t i) const { assert(i < N); return data[i]; }
@@ -59,13 +60,13 @@ struct Vector {
         return ret;
     }
 
-    T Dot(const Vector &other) const {
+    [[nodiscard]] T Dot(const Vector &other) const {
         return *this * other;
     }
 
-    T Magnitude() const { return std::sqrt(*this * *this); }
+    [[nodiscard]] T Magnitude() const { return std::sqrt(*this * *this); }
 
-    Vector Normalize() const { return *this / Magnitude(); }
+    [[nodiscard]] Vector Normalize() const { return *this / Magnitude(); }
 
     template<size_t NEW_N>
     Vector<T, NEW_N> Resize(T fill = T(1)) const {
@@ -100,10 +101,6 @@ struct Vector {
         });
     }
 
-    static Vector Interpolate(const Vector &v1, const Vector &v2, const Vector &v3, const Vector<T, 3> &bc, float weight = 1.0f) {
-        return (v1 * bc[0] + v2 * bc[1] + v3 * bc[2]) / weight;
-    }
-
     [[nodiscard]] std::string ToString() const {
         std::ostringstream oss;
         oss << "[";
@@ -114,6 +111,8 @@ struct Vector {
         oss << "]";
         return oss.str();
     }
+
+    std::array<T, N> ToArray() const { return data; }
 };
 
 template<typename T, size_t N>

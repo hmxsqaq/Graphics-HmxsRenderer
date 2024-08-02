@@ -1,6 +1,8 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef ISHADER_H
+#define ISHADER_H
 
+#include <component-gameobject.h>
+#include <memory>
 #include "color.h"
 #include "maths/maths.h"
 #include <vector>
@@ -33,34 +35,34 @@ struct Light {
 struct IShader {
     virtual ~IShader() = default;
 
-    void SetModelMatrix(const Matrix4x4& model_matrix) { model_matrix_ = model_matrix; }
-    void SetViewMatrix(const Matrix4x4& view_matrix) { view_matrix_ = view_matrix; }
-    void SetProjectionMatrix(const Matrix4x4& projection_matrix) { projection_matrix_ = projection_matrix; }
-    void SetViewportMatrix(const Matrix4x4& viewport_matrix) { viewport_matrix_ = viewport_matrix; }
-    [[nodiscard]] Matrix4x4 model_matrix() const { return model_matrix_; }
-    [[nodiscard]] Matrix4x4 view_matrix() const { return view_matrix_; }
-    [[nodiscard]] Matrix4x4 projection_matrix() const { return projection_matrix_; }
-    [[nodiscard]] Matrix4x4 viewport_matrix() const { return viewport_matrix_; }
-
-    void AddLight(const Light &light) { lights_.push_back(light); }
-    void AddLights(const std::vector<Light>& lights) { lights_.insert(lights_.end(), lights.begin(), lights.end()); }
-    void ClearLights() { lights_.clear(); }
+    void AddLight(const Light &light) { lights.push_back(light); }
+    void AddLights(const std::vector<Light>& new_lights) { lights.insert(lights.end(), new_lights.begin(), new_lights.end()); }
+    void ClearLights() { lights.clear(); }
     void NormalizeLights();
 
     virtual void Vertex(const VertexShaderInput& in, Triangle& out) = 0;
     virtual bool Fragment(const FragmentShaderInput& in, Color& out) = 0;
 
-protected:
-    Matrix4x4 model_matrix_;
-    Matrix4x4 view_matrix_;
-    Matrix4x4 projection_matrix_;
-    Matrix4x4 viewport_matrix_;
-    std::vector<Light> lights_{};
+    Matrix4x4 model_matrix;
+    Matrix4x4 view_matrix;
+    Matrix4x4 projection_matrix;
+    Matrix4x4 viewport_matrix;
+    std::vector<Light> lights{};
+    std::shared_ptr<Model> model = nullptr;
+    Vector3f view_direction;
+    float ambient_light = 0.1f;
 };
 
-struct TestShader final : IShader {
+struct StandardVertexShader : IShader {
     void Vertex(const VertexShaderInput& in, Triangle& out) override;
+};
+
+struct GrayShader final : StandardVertexShader {
     bool Fragment(const FragmentShaderInput& in, Color& out) override;
 };
 
-#endif //SHADER_H
+struct PhongShader final : StandardVertexShader {
+    bool Fragment(const FragmentShaderInput& in, Color& out) override;
+};
+
+#endif //ISHADER_H

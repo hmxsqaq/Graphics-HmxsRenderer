@@ -30,16 +30,16 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
     }
 }
 
-void Renderer::DrawModel(const Model &model,
+void Renderer::DrawModel(const std::shared_ptr<Model> &model,
                          const std::shared_ptr<IShader> &shader,
                          const std::shared_ptr<FrameBuffer> &frame_buffer) {
-    for (int face_index = 0; face_index < model.faces_size(); face_index++) {
+    for (int face_index = 0; face_index < model->faces_size(); face_index++) {
         std::array<Triangle, 3> vertex_shader_output{};
         for (const int vertex_index : {0, 1, 2}) {
             VertexShaderInput vertex_shader_input {
-                .vertex_model_space = model.vertex(face_index, vertex_index),
-                .normal = model.normal(face_index, vertex_index),
-                .uv = model.uv(face_index, vertex_index)
+                .vertex_model_space = model->vertex(face_index, vertex_index),
+                .normal = model->normal(face_index, vertex_index),
+                .uv = model->uv(face_index, vertex_index)
             };
             shader->Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
@@ -82,9 +82,9 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
             // depth test passed
             Color color;
             FragmentShaderInput fragment_shader_input {
-                .interpolated_vertex_view_space = Vector3f::Interpolate(triangle[0].vertex_view_space, triangle[1].vertex_view_space, triangle[2].vertex_view_space, bc_clip),
-                .interpolated_normal = Vector3f::Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip).Normalize(),
-                .interpolated_uv = Vector2f::Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
+                .interpolated_vertex_view_space = Interpolate(triangle[0].vertex_view_space, triangle[1].vertex_view_space, triangle[2].vertex_view_space, bc_clip),
+                .interpolated_normal = Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip).Normalize(),
+                .interpolated_uv = Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
             };
             if (!shader->Fragment(fragment_shader_input, color)) continue; // fragment shader test
             // fragment shader passed

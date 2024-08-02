@@ -8,17 +8,19 @@ void Scene::Render() const {
         return;
     }
 
-    shader_->SetViewMatrix(camera_->GetViewMatrix());
-    shader_->SetProjectionMatrix(camera_->GetProjectionMatrix());
-    shader_->SetViewportMatrix(frame_buffer_->GetViewportMatrix());
-    for (const auto& mesh_obj : mesh_objs_) {
+    shader->view_matrix = camera->GetViewMatrix();
+    shader->projection_matrix = camera->GetProjectionMatrix();
+    shader->viewport_matrix = frame_buffer->GetViewportMatrix();
+    for (const auto& mesh_obj : mesh_objs) {
         if (mesh_obj->mesh == nullptr) {
             LOG_ERROR("Scene - mesh object has no mesh");
             continue;
         }
-        shader_->SetModelMatrix(mesh_obj->GetModelMatrix());
-        shader_->NormalizeLights();
-        Renderer::DrawModel(mesh_obj->mesh->model(), shader_, frame_buffer_);
+        shader->model_matrix = mesh_obj->GetModelMatrix();
+        shader->model = mesh_obj->mesh->model();
+        shader->view_direction = camera->GetViewDirection();
+        shader->NormalizeLights();
+        Renderer::DrawModel(mesh_obj->mesh->model(), shader, frame_buffer);
     }
 }
 
@@ -28,7 +30,7 @@ void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {
         LOG_WARNING("Callbacks - cannot get scene object from user data");
         return;
     }
-    const auto camera = scene->GetCamera();
+    const auto camera = scene->camera;
     switch (keycode) {
         case A:
             camera->transform.position[0] += 0.1f;

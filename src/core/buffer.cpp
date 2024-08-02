@@ -25,14 +25,21 @@ std::uint8_t ColorBuffer::operator[](const size_t index) const {
 
 void ColorBuffer::SetPixel(const size_t x, const size_t y, const Color &color) const {
     assert(x < width_ && y < height_ && data_ != nullptr);
-    std::copy_n(color.bgra.begin(), bpp_, data_.get() + (x + y * width_) * bpp_);
+    std::copy_n(color.bgra_array.begin(), bpp_, data_.get() + (x + y * width_) * bpp_);
 }
 
 Color ColorBuffer::GetPixel(const size_t x, const size_t y) const {
     assert(x < width_ && y < height_ && data_ != nullptr);
     Color ret = {0, 0, 0, 0};
-    std::copy_n(data_.get() + (x + y * width_) * bpp_, bpp_, ret.bgra.begin());
+    std::copy_n(data_.get() + (x + y * width_) * bpp_, bpp_, ret.bgra_array.begin());
     return ret;
+}
+
+Color ColorBuffer::GetPixel(Vector2f uv) const {
+    assert(uv[0] >= 0 && uv[0] <= 1 && uv[1] >= 0 && uv[1] <= 1);
+    const auto x = static_cast<size_t>(uv[0] * static_cast<float>(width_));
+    const auto y = static_cast<size_t>(uv[1] * static_cast<float>(height_));
+    return GetPixel(x, y);
 }
 
 void ColorBuffer::FilpVertically() {

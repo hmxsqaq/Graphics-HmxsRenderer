@@ -1,7 +1,6 @@
 #ifndef IMAGE_BUFFER_H
 #define IMAGE_BUFFER_H
 
-#include <cstdint>
 #include <memory>
 #include "color.h"
 #include "maths/matrix.h"
@@ -28,6 +27,7 @@ public:
 
     void SetPixel(size_t x, size_t y, const Color &color) const;
     [[nodiscard]] Color GetPixel(size_t x, size_t y) const;
+    [[nodiscard]] Color GetPixel(Vector2f uv) const;
 
     void FilpVertically();
     void FilpHorizontally();

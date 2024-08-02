@@ -139,12 +139,12 @@ bool TGAHandler::LoadRLE(std::ifstream &in, ColorBuffer &buffer) {
         if (chunk_header < 128) {
             chunk_header++;
             for (int i = 0; i < chunk_header; i++) {
-                in.read(reinterpret_cast<char *>(color_buffer.bgra.data()), bpp);
+                in.read(reinterpret_cast<char *>(color_buffer.bgra_array.data()), bpp);
                 if (!in.good()) {
                     LOG_ERROR("RLE - an error occurred while reading the header");
                     return false;
                 }
-                for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra[t];
+                for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra_array[t];
                 current_pixel++;
                 if (current_pixel > pixels_count) {
                     LOG_ERROR("RLE - too many pixels were read");
@@ -153,13 +153,13 @@ bool TGAHandler::LoadRLE(std::ifstream &in, ColorBuffer &buffer) {
             }
         } else {
             chunk_header -= 127;
-            in.read(reinterpret_cast<char *>(color_buffer.bgra.data()), bpp);
+            in.read(reinterpret_cast<char *>(color_buffer.bgra_array.data()), bpp);
             if (!in.good()) {
                 LOG_ERROR("RLE - an error occurred while reading the header");
                 return false;
             }
             for (int i=0; i < chunk_header; i++) {
-                for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra[t];
+                for (int t = 0; t < bpp; t++) buffer[current_byte++] = color_buffer.bgra_array[t];
                 current_pixel++;
                 if (current_pixel > pixels_count) {
                     LOG_ERROR("RLE - too many pixels were read");

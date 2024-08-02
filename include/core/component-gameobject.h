@@ -35,8 +35,7 @@ public:
 
     void SetModel(const std::shared_ptr<Model>& model) { model_ = model; }
 
-    [[nodiscard]] Model& model() { return *model_; }
-    [[nodiscard]] const Model& model() const { return *model_; }
+    [[nodiscard]] std::shared_ptr<Model> model() const { return model_; }
 
 private:
     std::shared_ptr<Model> model_;
@@ -80,6 +79,7 @@ struct CameraObject : GameObject {
 
     [[nodiscard]] Matrix4x4 GetViewMatrix() const;
     [[nodiscard]] Matrix4x4 GetProjectionMatrix() const { return camera.GetProjectionMatrix(); }
+    [[nodiscard]] Vector3f GetViewDirection() const;
 };
 
 #endif //GAME_OBJECT_H
