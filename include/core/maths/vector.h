@@ -91,8 +91,10 @@ struct Vector {
         return ret;
     }
 
+    T Cross(const Vector<T, 2> &other) const { return Cross(*this, other); }
     static T Cross(const Vector<T, 2> &v1, const Vector<T, 2> &v2) { return v1[0] * v2[1] - v1[1] * v2[0]; }
 
+    Vector<T, 3> Cross(const Vector<T, 3> &other) { return Cross(*this, other); }
     static Vector<T, 3> Cross(const Vector<T, 3> &v1, const Vector<T, 3> &v2) {
         return Vector<T, 3>({
             v1[1] * v2[2] - v1[2] * v2[1],

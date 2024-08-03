@@ -17,8 +17,8 @@ void Scene::Render() const {
             continue;
         }
         shader->model_matrix = mesh_obj->GetModelMatrix();
-        shader->model = mesh_obj->mesh->model();
         shader->view_direction = camera->GetViewDirection();
+        shader->model = mesh_obj->mesh->model();
         shader->NormalizeLights();
         Renderer::DrawModel(mesh_obj->mesh->model(), shader, frame_buffer);
     }
@@ -52,9 +52,27 @@ void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {
         break;
         case SPACE:
             camera->transform.position = {0, 0, 5};
+            camera->transform.rotation = {0, 0, 0};
         break;
         case ESC:
             windows->CloseWnd();
         break;
+    }
+}
+
+void Callbacks::OnMousePressed(const Win32Wnd *windows, const MouseCode mousecode) {
+    const auto scene = static_cast<Scene*>(windows->GetUserData().get());
+    if (scene == nullptr) {
+        LOG_WARNING("Callbacks - cannot get scene object from user data");
+        return;
+    }
+    const auto camera = scene->camera;
+    switch (mousecode) {
+        case L:
+            camera->transform.rotation[1] += 5.0f;
+            break;
+        case R:
+            camera->transform.rotation[1] -= 5.0f;
+            break;
     }
 }

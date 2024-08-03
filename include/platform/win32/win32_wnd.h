@@ -10,7 +10,7 @@
 #include "../core/buffer.h"
 
 typedef enum { A, D, W, S, Q, E, SPACE, ESC } KeyCode;
-typedef enum { L, R, NUM } MouseCode;
+typedef enum { L, R } MouseCode;
 
 /**
  * @brief window class based on Win32 API using GDI to draw pixels and text.

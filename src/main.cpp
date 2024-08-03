@@ -44,6 +44,7 @@ int main() {
     window.SetTextFont("SF Pro Display", 20);
     window.SetUserData(scene);
     window.RegisterKeyCallback(Callbacks::OnKeyPressed);
+    window.RegisterMouseCallback(Callbacks::OnMousePressed);
 
     FrameTimer frame_timer;
 

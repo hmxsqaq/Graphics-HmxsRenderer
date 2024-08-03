@@ -27,6 +27,7 @@ struct Scene {
 
 struct Callbacks {
     static void OnKeyPressed(Win32Wnd* windows, KeyCode keycode);
+    static void OnMousePressed(const Win32Wnd* windows, MouseCode mousecode);
 };
 
 #endif //SCENE_H

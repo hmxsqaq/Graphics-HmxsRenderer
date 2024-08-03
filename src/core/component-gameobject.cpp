@@ -1,5 +1,7 @@
 #include "component-gameobject.h"
 
+#include <utility/log.h>
+
 Matrix4x4 Transform::GetModelMatrix() const {
     const Vector3f radian = rotation * M_PI / 180.0;
     const Matrix4x4 rotate_x {
@@ -61,12 +63,25 @@ Matrix4x4 Camera::GetProjectionMatrix() const {
 }
 
 Matrix4x4 CameraObject::GetViewMatrix() const {
-    return Matrix4x4 {
+    Vector3f forward = GetViewDirection();
+    Vector3f up = {0, 1, 0};
+    Vector3f right = up.Cross(forward).Normalize();
+
+    const Matrix4x4 translate_mat {
         {1, 0, 0, -transform.position[0]},
         {0, 1, 0, -transform.position[1]},
         {0, 0, 1, -transform.position[2]},
         {0, 0, 0, 1}
     };
+
+    const Matrix4x4 rotate_mat {
+        {right[0], right[1], right[2], 0},
+        {up[0], up[1], up[2], 0},
+        {-forward[0], -forward[1], -forward[2], 0},
+        {0, 0, 0, 1}
+    };
+
+    return translate_mat * rotate_mat;
 }
 
 Vector3f CameraObject::GetViewDirection() const {
