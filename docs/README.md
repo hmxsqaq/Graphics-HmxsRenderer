@@ -8,6 +8,14 @@ Compared to the previous project, this project has more features such as: `runti
 
 I wrote this renderer to learn more about 3D graphics and to have fun. It is not intended to be a production-ready renderer. Although the renderer is simple and slow, it provides good practice for me in learning the fundamentals of 3D graphics.
 
+```mermaid
+---
+title: HmxsRenderer
+---
+classDiagram
+    Vector <|-- Matrix
+```
+
 ## Features
 
 // todo
