@@ -80,7 +80,7 @@ bool TGAHandler::WriteTGAFile(const std::string &filename, const int width, cons
     header.bits_per_pixel = bpp << 3; // = * 8
     header.width  = width;
     header.height = height;
-    header.data_type_code = bpp == ColorType::GRAYSCALE ? (rle ? 11 : 3) : rle ? 10 : 2;
+    header.data_type_code = bpp == GRAYSCALE ? (rle ? 11 : 3) : rle ? 10 : 2;
     header.image_descriptor = v_flip ? 0x00 : 0x20; // top-left or bottom-left origin
 
     // write header

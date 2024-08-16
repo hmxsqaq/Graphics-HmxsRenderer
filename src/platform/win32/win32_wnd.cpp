@@ -31,9 +31,9 @@ void Win32Wnd::OpenWnd(const int width, const int height) {
 void Win32Wnd::PushBuffer(const ColorBuffer &buffer) const {
     assert(buffer.bpp() == ColorType::RGBA || buffer.bpp() == ColorType::GRAYSCALE || buffer.bpp() == ColorType::RGB);
 
-    if (buffer.bpp() == ColorType::RGBA) {
+    if (buffer.bpp() == RGBA) {
         std::copy_n(buffer.data(), buffer.size(), pixels_buffer_);
-    } else if (buffer.bpp() == ColorType::GRAYSCALE) {
+    } else if (buffer.bpp() == GRAYSCALE) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_buffer_;
         for (int i = 0; i < pixel_count; ++i) {
@@ -41,7 +41,7 @@ void Win32Wnd::PushBuffer(const ColorBuffer &buffer) const {
             pixel_ptr[3] = 255;
             pixel_ptr += 4;
         }
-    } else if (buffer.bpp() == ColorType::RGB) {
+    } else if (buffer.bpp() == RGB) {
         const int pixel_count = width_ * height_;
         uint8_t* pixel_ptr = pixels_buffer_;
         for (int i = 0; i < pixel_count; ++i) {
@@ -83,7 +83,7 @@ void Win32Wnd::CloseWnd() {
     is_running_ = false;
 }
 
-void Win32Wnd::SetTextFont(const std::string &font_name, int font_size) {
+void Win32Wnd::SetTextFont(const std::string &font_name, const int font_size) {
     text_font_ = CreateFont(font_size, 0, 0, 0,
                             FW_NORMAL,
                             FALSE, FALSE, FALSE,
