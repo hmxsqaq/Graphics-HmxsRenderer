@@ -16,8 +16,8 @@ struct Scene {
     std::vector<std::shared_ptr<MeshObject>> mesh_objs{};
     std::vector<std::shared_ptr<IShader>> shader_list{};
     std::vector<Light> lights{};
-    size_t current_shader_index = 0;
-    bool auto_rotate = true;
+    int current_shader_index = 0;
+    bool auto_rotate = false;
 
     void Render() const;
 

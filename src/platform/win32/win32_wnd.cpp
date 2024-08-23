@@ -192,6 +192,7 @@ void Win32Wnd::ProcessKey(Win32Wnd* windows, const WPARAM wParam) {
         case 'Q':       key_code = Q;       break;
         case 'E':       key_code = E;       break;
         case VK_SPACE:  key_code = SPACE;   break;
+        case VK_RETURN: key_code = ENTER;   break;
         default:                            return;
     }
     if (!windows->key_callbacks_.empty()) {

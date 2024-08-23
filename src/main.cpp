@@ -36,9 +36,9 @@ std::string GetUiText(const Scene &scene, const FrameTimer &timer) {
     oss << "\n";
     oss << "OPERATION\n";
     oss << "W A S D Q E - Move camera\n";
-    oss << "SPACE       - Reset models\n";
-    oss << "Left Click  - Turn on/off rotation\n";
-    oss << "Right Click - Switch Shader";
+    oss << "   SPACE    - Reset models & camera\n";
+    oss << "   ENTER    - Turn on/off rotation\n";
+    oss << "Mouse Click - Switch Shader";
     return oss.str();
 }
 
@@ -57,14 +57,24 @@ int main() {
     camera_obj->camera = Camera(60.0f, 1.0f, 0.1f, 1000.0f);
     camera_obj->SetPosition({0, 0, 5});
 
+    const auto fixed_shader = std::make_shared<FixedShader>();
     const auto gray_shader = std::make_shared<GrayShader>();
     const auto phong_shader = std::make_shared<PhongShader>();
+    const auto blinn_phong_shader = std::make_shared<BlinnPhongShader>();
+    const auto normal_shader = std::make_shared<NormalShader>();
+    const auto normal_tangent_shader = std::make_shared<NormalTangentShader>();
+    const auto test_shader = std::make_shared<TestShader>();
 
     const auto scene = std::make_shared<Scene>();
     scene->camera_obj = camera_obj;
     scene->frame_buffer = frame_buffer;
-    scene->shader_list.push_back(phong_shader);
-    scene->shader_list.push_back(gray_shader);
+    // scene->shader_list.push_back(fixed_shader);
+    // scene->shader_list.push_back(gray_shader);
+    // scene->shader_list.push_back(phong_shader);
+    scene->shader_list.push_back(blinn_phong_shader);
+    // scene->shader_list.push_back(normal_shader);
+    scene->shader_list.push_back(normal_tangent_shader);
+
     scene->lights.push_back(light1);
     scene->lights.push_back(light2);
     for (const auto &model_name : model_name_list) {

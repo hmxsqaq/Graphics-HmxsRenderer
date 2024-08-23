@@ -34,20 +34,20 @@ void Renderer::DrawModel(const Model &model,
                          const IShader &shader,
                          const FrameBuffer &frame_buffer) {
     for (int face_index = 0; face_index < model.faces_size(); face_index++) {
-        std::array<Triangle, 3> vertex_shader_output{};
+        std::array<Vertex, 3> vertex_shader_output{};
         for (const int vertex_index : {0, 1, 2}) {
             VertexShaderInput vertex_shader_input {
                 .vertex_model_space = model.vertex(face_index, vertex_index),
                 .normal = model.normal(face_index, vertex_index),
                 .uv = model.uv(face_index, vertex_index)
             };
-            shader.Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
+            shader.VertexShader(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
         RasterizeTriangle(vertex_shader_output, shader, frame_buffer);
     }
 }
 
-void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
+void Renderer::RasterizeTriangle(const std::array<Vertex, 3> &triangle,
                                  const IShader &shader,
                                  const FrameBuffer &frame_buffer) {
     // create bounding box
@@ -81,12 +81,10 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
             if (depth > frame_buffer.depth_buffer.GetDepth(x, y)) continue; // depth test
             // depth test passed
             Color color;
-            FragmentShaderInput fragment_shader_input {
-                .interpolated_vertex_view_space = Interpolate(triangle[0].vertex_view_space, triangle[1].vertex_view_space, triangle[2].vertex_view_space, bc_clip),
-                .interpolated_normal = Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip).Normalize(),
-                .interpolated_uv = Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
-            };
-            if (!shader.Fragment(fragment_shader_input, color)) continue; // fragment shader test
+            if (!shader.FragmentShader({
+                .triangle = triangle,
+                .bc_clip = bc_clip
+            }, color)) continue; // fragment shader test
             // fragment shader passed
             frame_buffer.color_buffer.SetPixel(x, y, color);
             frame_buffer.depth_buffer.SetDepth(x, y, depth);
@@ -94,7 +92,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
     }
 }
 
-Vector3f Renderer::GetBarycentric2d(const std::array<Triangle, 3> &triangle, const Vector2f &p) {
+Vector3f Renderer::GetBarycentric2d(const std::array<Vertex, 3> &triangle, const Vector2f &p) {
     const float x0 = triangle[0].vertex_screen_space[0], y0 = triangle[0].vertex_screen_space[1];
     const float x1 = triangle[1].vertex_screen_space[0], y1 = triangle[1].vertex_screen_space[1];
     const float x2 = triangle[2].vertex_screen_space[0], y2 = triangle[2].vertex_screen_space[1];

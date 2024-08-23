@@ -36,29 +36,37 @@ void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {
     switch (keycode) {
         case A:
             camera->transform.position[0] += 0.1f;
-        break;
+            break;
         case D:
             camera->transform.position[0] -= 0.1f;
-        break;
+            break;
         case W:
             camera->transform.position[2] -= 0.1f;
-        break;
+            break;
         case S:
             camera->transform.position[2] += 0.1f;
-        break;
+            break;
         case Q:
             camera->transform.position[1] += 0.1f;
-        break;
+            break;
         case E:
             camera->transform.position[1] -= 0.1f;
-        break;
+            break;
         case SPACE:
             camera->transform.position = {0, 0, 5};
             camera->transform.rotation = {0, 0, 0};
-        break;
+            for (auto& mesh_obj: scene->mesh_objs) {
+                mesh_obj->transform.position = {0, 0, 0};
+                mesh_obj->transform.rotation = {0, 0, 0};
+            }
+            break;
         case ESC:
             windows->CloseWnd();
-        break;
+            break;
+        case ENTER:
+            scene->auto_rotate = !scene->auto_rotate;
+            break;
+        default: break;
     }
 }
 
@@ -68,14 +76,14 @@ void Callbacks::OnMousePressed(const Win32Wnd *windows, const MouseCode mousecod
         LOG_WARNING("Callbacks - cannot get scene object from user data");
         return;
     }
-    const auto& mesh_objs = scene->mesh_objs;
     switch (mousecode) {
         case L:
-            scene->auto_rotate = !scene->auto_rotate;
-            break;
-        case R:
             scene->current_shader_index++;
             if (scene->current_shader_index >= scene->shader_list.size()) scene->current_shader_index = 0;
+            break;
+        case R:
+            scene->current_shader_index--;
+            if (scene->current_shader_index < 0) scene->current_shader_index = static_cast<int>(scene->shader_list.size()) - 1;
             break;
     }
 }

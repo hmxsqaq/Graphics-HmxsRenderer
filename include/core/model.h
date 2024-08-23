@@ -12,8 +12,9 @@ public:
     explicit Model(const std::string &filename);
 
     [[nodiscard]] const ColorBuffer* diffuse_map() const { return diffuse_map_.get(); }
-    [[nodiscard]] const ColorBuffer* normal_map() const { return normal_map_.get(); }
     [[nodiscard]] const ColorBuffer* specular_map() const { return specular_map_.get(); }
+    [[nodiscard]] const ColorBuffer* normal_map() const { return normal_map_.get(); }
+    [[nodiscard]] const ColorBuffer* normal_map_tangent() const { return normal_map_tangent_.get(); }
     [[nodiscard]] size_t vertices_size() const { return vertices_.size(); }
     [[nodiscard]] size_t faces_size() const { return vertex_indices_.size() / 3; }
     [[nodiscard]] Vector3f vertex(const size_t i) const { return vertices_[i]; }
@@ -21,6 +22,7 @@ public:
     [[nodiscard]] Vector2f uv(const size_t face_index, const size_t vertex_index) const { return tex_coords_[tex_coord_indices_[face_index * 3 + vertex_index]]; }
     [[nodiscard]] Vector3f normal(const size_t face_index, const size_t vertex_index) const { return normals_[normal_indices_[face_index * 3 + vertex_index]]; }
     [[nodiscard]] Vector3f normal(const Vector2f &uvf) const;
+    [[nodiscard]] Vector3f normal_tangent(const Vector2f &uvf) const;
 
 private:
     static std::unique_ptr<ColorBuffer> LoadTGAImage(const std::string &filename, const std::string &suffix);
@@ -32,8 +34,9 @@ private:
     std::vector<int> tex_coord_indices_;
     std::vector<int> normal_indices_;
     std::unique_ptr<ColorBuffer> diffuse_map_;
-    std::unique_ptr<ColorBuffer> normal_map_;
     std::unique_ptr<ColorBuffer> specular_map_;
+    std::unique_ptr<ColorBuffer> normal_map_;
+    std::unique_ptr<ColorBuffer> normal_map_tangent_;
 };
 
 #endif //MODEL_H

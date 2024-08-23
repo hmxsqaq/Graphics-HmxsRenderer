@@ -47,19 +47,28 @@ Model::Model(const std::string &filename) {
         }
     }
     diffuse_map_ = LoadTGAImage(filename, "_diffuse.tga");
-    normal_map_ = LoadTGAImage(filename, "_nm_tangent.tga");
     specular_map_ = LoadTGAImage(filename, "_spec.tga");
+    normal_map_ = LoadTGAImage(filename, "_nm.tga");
+    normal_map_tangent_ = LoadTGAImage(filename, "_nm_tangent.tga");
     LOG_INFO("model:" + filename + " load success");
     LOG_INFO("v-" + std::to_string(vertices_size()) + " f-" + std::to_string(faces_size()) + " vt-" + std::to_string(tex_coords_.size()) + " vn-" + std::to_string(normals_.size()));
-    LOG_INFO("diffuse_map:  " + std::to_string(diffuse_map_->width()) + " x " + std::to_string(diffuse_map_->height()) + " / " + std::to_string(diffuse_map_->bpp() * 8));
-    LOG_INFO("normal_map:   " + std::to_string(normal_map_->width()) + " x " + std::to_string(normal_map_->height()) + " / " + std::to_string(normal_map_->bpp() * 8));
-    LOG_INFO("specular_map: " + std::to_string(specular_map_->width()) + " x " + std::to_string(specular_map_->height()) + " / " + std::to_string(specular_map_->bpp() * 8));
+    LOG_INFO("diffuse_map:        " + std::to_string(diffuse_map_->width()) + " x " + std::to_string(diffuse_map_->height()) + " / " + std::to_string(diffuse_map_->bpp() * 8));
+    LOG_INFO("specular_map:       " + std::to_string(specular_map_->width()) + " x " + std::to_string(specular_map_->height()) + " / " + std::to_string(specular_map_->bpp() * 8));
+    LOG_INFO("normal_map:         " + std::to_string(normal_map_->width()) + " x " + std::to_string(normal_map_->height()) + " / " + std::to_string(normal_map_->bpp() * 8));
+    LOG_INFO("normal_map_tangent: " + std::to_string(normal_map_tangent_->width()) + " x " + std::to_string(normal_map_tangent_->height()) + " / " + std::to_string(normal_map_tangent_->bpp() * 8));
 }
 
 Vector3f Model::normal(const Vector2f &uvf) const {
     Color color = normal_map_->GetPixel(
-        static_cast<size_t>(uvf[0] * static_cast<float>(normal_map_->width())),
-        static_cast<size_t>(uvf[1] * static_cast<float>(normal_map_->height())));
+        static_cast<size_t>(uvf[0] * static_cast<float>(normal_map_tangent_->width())),
+        static_cast<size_t>(uvf[1] * static_cast<float>(normal_map_tangent_->height())));
+    return Vector3f{static_cast<float>(color[2]), static_cast<float>(color[1]), static_cast<float>(color[0])} * 2.0 / 255.0 - Vector3f{1, 1, 1}; // mappped from [0, 255] to [-1, 1]
+}
+
+Vector3f Model::normal_tangent(const Vector2f &uvf) const {
+    Color color = normal_map_tangent_->GetPixel(
+        static_cast<size_t>(uvf[0] * static_cast<float>(normal_map_tangent_->width())),
+        static_cast<size_t>(uvf[1] * static_cast<float>(normal_map_tangent_->height())));
     return Vector3f{static_cast<float>(color[2]), static_cast<float>(color[1]), static_cast<float>(color[0])} * 2.0 / 255.0 - Vector3f{1, 1, 1}; // mappped from [0, 255] to [-1, 1]
 }
 

@@ -9,7 +9,7 @@
 
 #include "../core/buffer.h"
 
-typedef enum { A, D, W, S, Q, E, SPACE, ESC } KeyCode;
+typedef enum { A, D, W, S, Q, E, SPACE, ESC, ENTER } KeyCode;
 typedef enum { L, R } MouseCode;
 
 /**
