@@ -30,26 +30,26 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
     }
 }
 
-void Renderer::DrawModel(const std::shared_ptr<Model> &model,
-                         const std::shared_ptr<IShader> &shader,
-                         const std::shared_ptr<FrameBuffer> &frame_buffer) {
-    for (int face_index = 0; face_index < model->faces_size(); face_index++) {
+void Renderer::DrawModel(const Model &model,
+                         const IShader &shader,
+                         const FrameBuffer &frame_buffer) {
+    for (int face_index = 0; face_index < model.faces_size(); face_index++) {
         std::array<Triangle, 3> vertex_shader_output{};
         for (const int vertex_index : {0, 1, 2}) {
             VertexShaderInput vertex_shader_input {
-                .vertex_model_space = model->vertex(face_index, vertex_index),
-                .normal = model->normal(face_index, vertex_index),
-                .uv = model->uv(face_index, vertex_index)
+                .vertex_model_space = model.vertex(face_index, vertex_index),
+                .normal = model.normal(face_index, vertex_index),
+                .uv = model.uv(face_index, vertex_index)
             };
-            shader->Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
+            shader.Vertex(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
         RasterizeTriangle(vertex_shader_output, shader, frame_buffer);
     }
 }
 
 void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
-                                 const std::shared_ptr<IShader> &shader,
-                                 const std::shared_ptr<FrameBuffer> &frame_buffer) {
+                                 const IShader &shader,
+                                 const FrameBuffer &frame_buffer) {
     // create bounding box
     Vector2s box_min = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
     Vector2s box_max = {std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::min()};
@@ -62,8 +62,8 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
     // ensure bounding box is within the frame buffer
     box_min[0] = std::max(box_min[0], static_cast<size_t>(0));
     box_min[1] = std::max(box_min[1], static_cast<size_t>(0));
-    box_max[0] = std::min(box_max[0], frame_buffer->width() - 1);
-    box_max[1] = std::min(box_max[1], frame_buffer->height() - 1);
+    box_max[0] = std::min(box_max[0], frame_buffer.width() - 1);
+    box_max[1] = std::min(box_max[1], frame_buffer.height() - 1);
 
 #pragma omp parallel for
     for (size_t x = box_min[0]; x <= box_max[0]; x++) {
@@ -78,7 +78,7 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
             const float depth = triangle[0].vertex_clip_space[2] * bc_clip[0] +
                                 triangle[1].vertex_clip_space[2] * bc_clip[1] +
                                 triangle[2].vertex_clip_space[2] * bc_clip[2];
-            if (depth > frame_buffer->depth_buffer.GetDepth(x, y)) continue; // depth test
+            if (depth > frame_buffer.depth_buffer.GetDepth(x, y)) continue; // depth test
             // depth test passed
             Color color;
             FragmentShaderInput fragment_shader_input {
@@ -86,10 +86,10 @@ void Renderer::RasterizeTriangle(const std::array<Triangle, 3> &triangle,
                 .interpolated_normal = Interpolate(triangle[0].normal, triangle[1].normal, triangle[2].normal, bc_clip).Normalize(),
                 .interpolated_uv = Interpolate(triangle[0].uv, triangle[1].uv, triangle[2].uv, bc_clip)
             };
-            if (!shader->Fragment(fragment_shader_input, color)) continue; // fragment shader test
+            if (!shader.Fragment(fragment_shader_input, color)) continue; // fragment shader test
             // fragment shader passed
-            frame_buffer->color_buffer.SetPixel(x, y, color);
-            frame_buffer->depth_buffer.SetDepth(x, y, depth);
+            frame_buffer.color_buffer.SetPixel(x, y, color);
+            frame_buffer.depth_buffer.SetDepth(x, y, depth);
         }
     }
 }

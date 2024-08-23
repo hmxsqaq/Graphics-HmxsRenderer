@@ -35,14 +35,12 @@ struct Light {
 struct IShader {
     virtual ~IShader() = default;
 
-    void AddLight(const Light &light) { lights.push_back(light); }
-    void AddLights(const std::vector<Light>& new_lights) { lights.insert(lights.end(), new_lights.begin(), new_lights.end()); }
-    void ClearLights() { lights.clear(); }
     void NormalizeLights();
 
-    virtual void Vertex(const VertexShaderInput& in, Triangle& out) = 0;
-    virtual bool Fragment(const FragmentShaderInput& in, Color& out) = 0;
+    virtual void Vertex(const VertexShaderInput& in, Triangle& out) const = 0;
+    virtual bool Fragment(const FragmentShaderInput& in, Color& out) const = 0;
 
+    std::string name;
     Matrix4x4 model_matrix;
     Matrix4x4 view_matrix;
     Matrix4x4 projection_matrix;
@@ -51,18 +49,28 @@ struct IShader {
     std::shared_ptr<Model> model = nullptr;
     Vector3f view_direction;
     float ambient_light = 0.1f;
+
+protected:
+    explicit IShader(std::string name) : name(std::move(name)) { }
 };
 
 struct StandardVertexShader : IShader {
-    void Vertex(const VertexShaderInput& in, Triangle& out) override;
+    void Vertex(const VertexShaderInput& in, Triangle& out) const override;
+
+protected:
+    explicit StandardVertexShader(std::string name) : IShader(std::move(name)) { }
 };
 
 struct GrayShader final : StandardVertexShader {
-    bool Fragment(const FragmentShaderInput& in, Color& out) override;
+    GrayShader() : StandardVertexShader("GrayShader") { }
+
+    bool Fragment(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct PhongShader final : StandardVertexShader {
-    bool Fragment(const FragmentShaderInput& in, Color& out) override;
+    PhongShader() : StandardVertexShader("PhongShader") { }
+
+    bool Fragment(const FragmentShaderInput& in, Color& out) const override;
 };
 
 #endif //ISHADER_H

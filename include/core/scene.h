@@ -8,21 +8,20 @@
 struct Scene {
     explicit Scene(
         const std::shared_ptr<CameraObject> &camera = nullptr,
-        const std::shared_ptr<IShader> &shader = nullptr,
         const std::shared_ptr<FrameBuffer> &frame_buffer = nullptr)
-        : camera(camera), shader(shader), frame_buffer(frame_buffer) { }
+        : camera_obj(camera), frame_buffer(frame_buffer) { }
+
+    std::shared_ptr<CameraObject> camera_obj;
+    std::shared_ptr<FrameBuffer> frame_buffer;
+    std::vector<std::shared_ptr<MeshObject>> mesh_objs{};
+    std::vector<std::shared_ptr<IShader>> shader_list{};
+    std::vector<Light> lights{};
+    size_t current_shader_index = 0;
+    bool auto_rotate = true;
 
     void Render() const;
 
-    void AddMeshObject(const std::shared_ptr<MeshObject> &gameobject) { mesh_objs.push_back(gameobject); }
-    void ClearMeshObjects() { mesh_objs.clear(); }
-
-    std::shared_ptr<CameraObject> camera;
-    std::vector<std::shared_ptr<MeshObject>> mesh_objs;
-    std::shared_ptr<IShader> shader;
-    std::shared_ptr<FrameBuffer> frame_buffer;
-
-    [[nodiscard]] bool CanRender() const { return camera != nullptr && !mesh_objs.empty() && shader != nullptr && frame_buffer != nullptr; }
+    [[nodiscard]] bool CanRender() const { return camera_obj != nullptr && frame_buffer != nullptr && !mesh_objs.empty() && shader_list[current_shader_index] != nullptr; }
 };
 
 struct Callbacks {

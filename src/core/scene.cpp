@@ -8,19 +8,21 @@ void Scene::Render() const {
         return;
     }
 
-    shader->view_matrix = camera->GetViewMatrix();
-    shader->projection_matrix = camera->GetProjectionMatrix();
+    auto& shader = shader_list[current_shader_index];
+    shader->view_matrix = camera_obj->GetViewMatrix();
+    shader->projection_matrix = camera_obj->GetProjectionMatrix();
     shader->viewport_matrix = frame_buffer->GetViewportMatrix();
+    shader->lights = lights;
+    shader->NormalizeLights();
     for (const auto& mesh_obj : mesh_objs) {
         if (mesh_obj->mesh == nullptr) {
             LOG_ERROR("Scene - mesh object has no mesh");
             continue;
         }
         shader->model_matrix = mesh_obj->GetModelMatrix();
-        shader->view_direction = camera->GetViewDirection();
+        shader->view_direction = camera_obj->GetViewDirection();
         shader->model = mesh_obj->mesh->model();
-        shader->NormalizeLights();
-        Renderer::DrawModel(mesh_obj->mesh->model(), shader, frame_buffer);
+        Renderer::DrawModel(*mesh_obj->mesh->model(), *shader, *frame_buffer);
     }
 }
 
@@ -30,7 +32,7 @@ void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {
         LOG_WARNING("Callbacks - cannot get scene object from user data");
         return;
     }
-    const auto camera = scene->camera;
+    const auto& camera = scene->camera_obj;
     switch (keycode) {
         case A:
             camera->transform.position[0] += 0.1f;
@@ -66,13 +68,14 @@ void Callbacks::OnMousePressed(const Win32Wnd *windows, const MouseCode mousecod
         LOG_WARNING("Callbacks - cannot get scene object from user data");
         return;
     }
-    const auto camera = scene->camera;
+    const auto& mesh_objs = scene->mesh_objs;
     switch (mousecode) {
         case L:
-            camera->transform.rotation[1] += 5.0f;
+            scene->auto_rotate = !scene->auto_rotate;
             break;
         case R:
-            camera->transform.rotation[1] -= 5.0f;
+            scene->current_shader_index++;
+            if (scene->current_shader_index >= scene->shader_list.size()) scene->current_shader_index = 0;
             break;
     }
 }

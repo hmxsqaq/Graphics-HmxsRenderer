@@ -42,7 +42,7 @@ Color ColorBuffer::GetPixel(Vector2f uv) const {
     return GetPixel(x, y);
 }
 
-void ColorBuffer::FilpVertically() {
+void ColorBuffer::FlipVertically() {
     const size_t half = height_ >> 1;
     for (int x = 0; x < width_; ++x)
         for (int y = 0; y < half; ++y)
@@ -51,7 +51,7 @@ void ColorBuffer::FilpVertically() {
                           data_[(x + (height_ - 1 - y) * width_) * bpp_ + b]);
 }
 
-void ColorBuffer::FilpHorizontally() {
+void ColorBuffer::FlipHorizontally() {
     const size_t half = width_ >> 1;
     for (int x = 0; x < half; ++x)
         for (int y = 0; y < height_; ++y)

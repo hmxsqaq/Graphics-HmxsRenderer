@@ -54,9 +54,9 @@ std::unique_ptr<ColorBuffer> TGAHandler::ReadTGAFile(const std::string &filename
 
     // flip or not
     if (!(header.image_descriptor & 0x20))
-        buffer->FilpVertically();
+        buffer->FlipVertically();
     if (header.image_descriptor & 0x10)
-        buffer->FilpHorizontally();
+        buffer->FlipHorizontally();
     return buffer;
 }
 

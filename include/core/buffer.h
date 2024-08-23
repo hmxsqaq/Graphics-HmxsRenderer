@@ -29,8 +29,8 @@ public:
     [[nodiscard]] Color GetPixel(size_t x, size_t y) const;
     [[nodiscard]] Color GetPixel(Vector2f uv) const;
 
-    void FilpVertically();
-    void FilpHorizontally();
+    void FlipVertically();
+    void FlipHorizontally();
     void Clear(uint8_t value = 0) const;
 
     [[nodiscard]] size_t width() const { return width_; }
@@ -76,7 +76,7 @@ private:
 };
 
 struct FrameBuffer {
-    FrameBuffer(size_t width, size_t height, uint8_t bpp = RGBA);;
+    FrameBuffer(size_t width, size_t height, uint8_t bpp = RGBA);
 
     void Clear(uint8_t default_color = 0, float default_depth = std::numeric_limits<float>::max()) const;
 

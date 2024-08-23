@@ -2,12 +2,14 @@
 
 void IShader::NormalizeLights() {
     for (auto& [direction, intensity] : lights) {
-        direction = (view_matrix * model_matrix * direction.Embed<4>(0)).Project<3>().Normalize();
-        intensity = (view_matrix * model_matrix * intensity.Embed<4>(0)).Project<3>();
+        // direction = (view_matrix * model_matrix * direction.Embed<4>(0)).Project<3>().Normalize();
+        // intensity = (view_matrix * model_matrix * intensity.Embed<4>(0)).Project<3>();
+        direction = direction.Normalize();
+        intensity = intensity.Normalize();
     }
 }
 
-void StandardVertexShader::Vertex(const VertexShaderInput &in, Triangle &out) {
+void StandardVertexShader::Vertex(const VertexShaderInput &in, Triangle &out) const {
     out.uv = in.uv;
     out.normal = ((view_matrix * model_matrix).InverseTranspose() * in.normal.Embed<4>(0)).Project<3>();
     out.vertex_view_space = (view_matrix * model_matrix * in.vertex_model_space.Embed<4>(1)).Project<3>();
@@ -15,7 +17,7 @@ void StandardVertexShader::Vertex(const VertexShaderInput &in, Triangle &out) {
     out.vertex_screen_space = (viewport_matrix * out.vertex_clip_space / out.vertex_clip_space[3]).Project<2>();
 }
 
-bool GrayShader::Fragment(const FragmentShaderInput &in, Color &out) {
+bool GrayShader::Fragment(const FragmentShaderInput &in, Color &out) const {
     float lightness = 0.0;
     for (const auto& [direction, intensity] : lights) {
         lightness += std::max(0.0f, in.interpolated_normal * direction);
@@ -24,7 +26,7 @@ bool GrayShader::Fragment(const FragmentShaderInput &in, Color &out) {
     return true;
 }
 
-bool PhongShader::Fragment(const FragmentShaderInput &in, Color &out) {
+bool PhongShader::Fragment(const FragmentShaderInput &in, Color &out) const {
     if (model == nullptr) return false;
     const Color texture_color = model->diffuse_map() != nullptr ? model->diffuse_map()->GetPixel(in.interpolated_uv) : Color::White();
     const Color specular_color = model->specular_map() != nullptr ? model->specular_map()->GetPixel(in.interpolated_uv) : Color::White();

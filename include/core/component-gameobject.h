@@ -57,6 +57,9 @@ public:
 
 
 struct GameObject {
+    explicit GameObject(std::string name = "GameObject") : name(std::move(name)) { }
+
+    std::string name;
     Transform transform;
 
     void SetPosition(const Vector3f& position) { transform.position = position; }
@@ -71,10 +74,14 @@ struct GameObject {
 };
 
 struct MeshObject : GameObject {
+    explicit MeshObject(std::string name = "MeshObject") : GameObject(std::move(name)) { }
+
     std::shared_ptr<Mesh> mesh;
 };
 
 struct CameraObject : GameObject {
+    explicit CameraObject(std::string name = "CameraObject") : GameObject(std::move(name)) { }
+
     Camera camera;
 
     [[nodiscard]] Matrix4x4 GetViewMatrix() const;
