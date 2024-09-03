@@ -54,8 +54,8 @@ int main() {
     const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
 
     const auto camera_obj = std::make_shared<CameraObject>();
-    camera_obj->camera = Camera(60.0f, 1.0f, 0.1f, 1000.0f);
-    camera_obj->SetPosition({0, 0, 5});
+    camera_obj->camera = Camera(40.0f, 1.0f, 0.1f, 1000.0f);
+    camera_obj->SetPosition({0, 0.5, 5});
 
     const auto fixed_shader = std::make_shared<FixedShader>();
     const auto gray_shader = std::make_shared<GrayShader>();
@@ -63,14 +63,14 @@ int main() {
     const auto blinn_phong_shader = std::make_shared<BlinnPhongShader>();
     const auto normal_shader = std::make_shared<NormalShader>();
     const auto normal_tangent_shader = std::make_shared<NormalTangentShader>();
-    const auto test_shader = std::make_shared<TestShader>();
+    // const auto test_shader = std::make_shared<TestShader>();
 
     const auto scene = std::make_shared<Scene>();
     scene->camera_obj = camera_obj;
     scene->frame_buffer = frame_buffer;
-    // scene->shader_list.push_back(fixed_shader);
-    // scene->shader_list.push_back(gray_shader);
-    // scene->shader_list.push_back(phong_shader);
+    scene->shader_list.push_back(fixed_shader);
+    scene->shader_list.push_back(gray_shader);
+    scene->shader_list.push_back(phong_shader);
     scene->shader_list.push_back(blinn_phong_shader);
     // scene->shader_list.push_back(normal_shader);
     scene->shader_list.push_back(normal_tangent_shader);

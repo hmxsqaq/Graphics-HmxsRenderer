@@ -53,7 +53,7 @@ void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {
             camera->transform.position[1] -= 0.1f;
             break;
         case SPACE:
-            camera->transform.position = {0, 0, 5};
+            camera->transform.position = {0, 0.5, 5};
             camera->transform.rotation = {0, 0, 0};
             for (auto& mesh_obj: scene->mesh_objs) {
                 mesh_obj->transform.position = {0, 0, 0};

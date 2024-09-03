@@ -4,7 +4,6 @@
 #include <component-gameobject.h>
 #include <memory>
 #include "color.h"
-#include "maths/maths.h"
 #include <vector>
 
 struct VertexShaderInput {
@@ -63,37 +62,37 @@ protected:
 };
 
 struct FixedShader final :StandardVertexShader {
-    FixedShader() : StandardVertexShader("FixedShader") { }
+    FixedShader() : StandardVertexShader("Fixed") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct GrayShader final : StandardVertexShader {
-    GrayShader() : StandardVertexShader("GrayShader") { }
+    GrayShader() : StandardVertexShader("Gray") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct PhongShader final : StandardVertexShader {
-    PhongShader() : StandardVertexShader("PhongShader") { }
+    PhongShader() : StandardVertexShader("Phong") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct BlinnPhongShader final : StandardVertexShader {
-    BlinnPhongShader() : StandardVertexShader("BlinnPhongShader") { }
+    BlinnPhongShader() : StandardVertexShader("BlinnPhong") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct NormalShader final : StandardVertexShader {
-    NormalShader() : StandardVertexShader("NormalShader") { }
+    NormalShader() : StandardVertexShader("Normal") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
 
 struct NormalTangentShader final : StandardVertexShader {
-    NormalTangentShader() : StandardVertexShader("TangentShader") { }
+    NormalTangentShader() : StandardVertexShader("Tangent") { }
 
     bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
 };
