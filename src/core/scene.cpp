@@ -22,8 +22,9 @@ void Scene::Render() const {
         shader->model_matrix = mesh_obj->GetModelMatrix();
         shader->view_direction = camera_obj->GetViewDirection();
         shader->model = mesh_obj->mesh->model();
-        Renderer::DrawModel(*mesh_obj->mesh->model(), *shader, *frame_buffer);
+        Renderer::DrawModel(*mesh_obj->mesh->model(), *shader, *frame_buffer, *g_buffer, render_path);
     }
+    if (render_path == DEFERRED) { shader->Deferred(*g_buffer, *frame_buffer); }
 }
 
 void Callbacks::OnKeyPressed(Win32Wnd *windows, const KeyCode keycode) {

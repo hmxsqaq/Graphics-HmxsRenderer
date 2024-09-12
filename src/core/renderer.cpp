@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include <cmath>
 #include "utility/log.h"
+#include "scene.h"
 
 void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer) {
     bool steep = false;
@@ -32,7 +33,9 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
 
 void Renderer::DrawModel(const Model &model,
                          const IShader &shader,
-                         const FrameBuffer &frame_buffer) {
+                         const FrameBuffer &frame_buffer,
+                         const GBuffer &g_buffer,
+                         const RenderPath &render_path) {
     for (int face_index = 0; face_index < model.faces_size(); face_index++) {
         std::array<Vertex, 3> vertex_shader_output{};
         for (const int vertex_index : {0, 1, 2}) {
@@ -43,13 +46,15 @@ void Renderer::DrawModel(const Model &model,
             };
             shader.VertexShader(vertex_shader_input, vertex_shader_output[vertex_index]);
         }
-        RasterizeTriangle(vertex_shader_output, shader, frame_buffer);
+        RasterizeTriangle(vertex_shader_output, shader, frame_buffer, g_buffer, render_path);
     }
 }
 
 void Renderer::RasterizeTriangle(const std::array<Vertex, 3> &triangle,
                                  const IShader &shader,
-                                 const FrameBuffer &frame_buffer) {
+                                 const FrameBuffer &frame_buffer,
+                                 const GBuffer &g_buffer,
+                                 const RenderPath &render_path) {
     // create bounding box
     Vector2s box_min = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
     Vector2s box_max = {std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::min()};
@@ -78,16 +83,17 @@ void Renderer::RasterizeTriangle(const std::array<Vertex, 3> &triangle,
             const float depth = triangle[0].vertex_clip_space[2] * bc_clip[0] +
                                 triangle[1].vertex_clip_space[2] * bc_clip[1] +
                                 triangle[2].vertex_clip_space[2] * bc_clip[2];
-            if (depth > frame_buffer.depth_buffer.GetDepth(x, y)) continue; // depth test
+            if (depth > frame_buffer.depth_buffer.Get(x, y)) continue; // depth test
+            frame_buffer.depth_buffer.Set(x, y, depth);
             // depth test passed
-            Color color;
-            if (!shader.FragmentShader({
+            FragmentShaderOutput out;
+            if (!shader.Fragment({
                 .triangle = triangle,
                 .bc_clip = bc_clip
-            }, color)) continue; // fragment shader test
+            }, out)) continue; // fragment shader test
             // fragment shader passed
-            frame_buffer.color_buffer.SetPixel(x, y, color);
-            frame_buffer.depth_buffer.SetDepth(x, y, depth);
+            frame_buffer.color_buffer.SetPixel(x, y, out.color);
+            if (render_path == DEFERRED) g_buffer.normal.Set(x, y, out.normal);
         }
     }
 }

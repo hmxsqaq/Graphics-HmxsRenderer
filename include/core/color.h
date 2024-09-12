@@ -64,6 +64,10 @@ struct Color {
         return {static_cast<float>(R()) / 255.0f, static_cast<float>(G()) / 255.0f, static_cast<float>(B()) / 255.0f};
     }
 
+    bool operator==(const Color & color) const {
+        return bgra_array[0] == color[0] && bgra_array[1] == color[1] && bgra_array[2] == color[2] && bgra_array[3] == color[3];
+    }
+
     std::array<std::uint8_t, 4> bgra_array;
 
     static Color Black() { return {0, 0, 0, 255}; }

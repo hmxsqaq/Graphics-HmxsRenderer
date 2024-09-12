@@ -58,8 +58,8 @@ public:
     float& operator[](size_t index);
     float  operator[](size_t index) const;
 
-    void SetDepth(size_t x, size_t y, float depth) const;
-    [[nodiscard]] float GetDepth(size_t x, size_t y) const;
+    void Set(size_t x, size_t y, float depth) const;
+    [[nodiscard]] float Get(size_t x, size_t y) const;
 
     void Clear(float value = std::numeric_limits<float>::max()) const;
 
@@ -69,6 +69,48 @@ public:
     [[nodiscard]] const float* data() const { return data_.get(); }
     [[nodiscard]]       float* data()       { return data_.get(); }
 
+private:
+    size_t width_;
+    size_t height_;
+    std::unique_ptr<float[]> data_;
+};
+
+template <size_t N>
+class VectorBuffer {
+public:
+    VectorBuffer(const size_t width, const size_t height) : width_(width), height_(height), data_(std::make_unique<float[]>(width * height * N)) {
+        Clear();
+    }
+
+    void Set(const size_t x, const size_t y, const Vector<float, N> &vector) const {
+        assert(x < width_ && y < height_ && data_ != nullptr);
+        const int offset = (y * width_ + x) * N;
+        std::copy_n(vector.data.begin(), N, data_.get() + offset);
+    }
+
+    void Set(const Vector2f &uv, const Vector<float, N> &vector) const {
+        const auto x = static_cast<size_t>(uv[0] * static_cast<float>(width_));
+        const auto y = static_cast<size_t>(uv[1] * static_cast<float>(height_));
+        return Set(x, y, vector);
+    }
+
+    [[nodiscard]] Vector<float, N> Get(const size_t x, const size_t y) const {
+        assert(x < width_ && y < height_ && data_ != nullptr);
+        Vector<float, N> vector;
+        const int offset = (y * width_ + x) * N;
+        std::copy_n(data_.get() + offset, N, vector.data.begin());
+        return vector;
+    }
+
+    void Clear(const float value = 0) const {
+        std::fill_n(data_.get(), width_ * height_ * N, value);
+    }
+
+    [[nodiscard]] size_t width() const { return width_; }
+    [[nodiscard]] size_t height() const { return height_; }
+    [[nodiscard]] size_t size() const { return width_ * height_ * N; }
+    [[nodiscard]] const float* data() const { return data_.get(); }
+    [[nodiscard]]       float* data()       { return data_.get(); }
 private:
     size_t width_;
     size_t height_;
@@ -88,6 +130,16 @@ struct FrameBuffer {
 
     ColorBuffer color_buffer;
     DepthBuffer depth_buffer;
+};
+
+struct GBuffer {
+    GBuffer(const size_t width, const size_t height) : normal(width, height) { };
+
+    void Clear() const {
+        normal.Clear();
+    }
+
+    VectorBuffer<3> normal;
 };
 
 #endif //IMAGE_BUFFER_H

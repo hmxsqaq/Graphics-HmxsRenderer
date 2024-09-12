@@ -52,6 +52,7 @@ int main() {
     };
 
     const auto frame_buffer = std::make_shared<FrameBuffer>(kWidth, kHeigh, RGBA);
+    const auto g_buffer = std::make_shared<GBuffer>(kWidth, kHeigh);
 
     const auto camera_obj = std::make_shared<CameraObject>();
     camera_obj->camera = Camera(40.0f, 1.0f, 0.1f, 1000.0f);
@@ -63,17 +64,22 @@ int main() {
     const auto blinn_phong_shader = std::make_shared<BlinnPhongShader>();
     const auto normal_shader = std::make_shared<NormalShader>();
     const auto normal_tangent_shader = std::make_shared<NormalTangentShader>();
+    const auto deferred_shader = std::make_shared<DeferredShader>();
     // const auto test_shader = std::make_shared<TestShader>();
 
     const auto scene = std::make_shared<Scene>();
     scene->camera_obj = camera_obj;
     scene->frame_buffer = frame_buffer;
-    scene->shader_list.push_back(fixed_shader);
-    scene->shader_list.push_back(gray_shader);
-    scene->shader_list.push_back(phong_shader);
-    scene->shader_list.push_back(blinn_phong_shader);
+    scene->g_buffer = g_buffer;
+    // scene->shader_list.push_back(fixed_shader);
+    // scene->shader_list.push_back(gray_shader);
+    // scene->shader_list.push_back(phong_shader);
+    // scene->shader_list.push_back(blinn_phong_shader);
     // scene->shader_list.push_back(normal_shader);
-    scene->shader_list.push_back(normal_tangent_shader);
+    // scene->shader_list.push_back(normal_tangent_shader);
+    scene->shader_list.push_back(deferred_shader);
+    scene->render_path = DEFERRED;
+    scene->auto_rotate = false;
 
     scene->lights.push_back(light1);
     scene->lights.push_back(light2);
@@ -101,6 +107,7 @@ int main() {
         window.PushText(GetUiText(*scene, frame_timer));
         window.UpdateWnd();
         frame_buffer->Clear();
+        g_buffer->Clear();
         Win32Wnd::HandleMsg();
         frame_timer.Tick();
 

@@ -5,6 +5,11 @@
 #include "component-gameobject.h"
 #include "ishader.h"
 
+enum RenderPath {
+    FORWARD = 0,
+    DEFERRED = 1
+};
+
 struct Scene {
     explicit Scene(
         const std::shared_ptr<CameraObject> &camera = nullptr,
@@ -18,6 +23,8 @@ struct Scene {
     std::vector<Light> lights{};
     int current_shader_index = 0;
     bool auto_rotate = true;
+    RenderPath render_path = FORWARD;
+    std::shared_ptr<GBuffer> g_buffer;
 
     void Render() const;
 

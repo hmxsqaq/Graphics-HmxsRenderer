@@ -85,12 +85,12 @@ float DepthBuffer::operator[](const size_t index) const {
     return data_[index];
 }
 
-void DepthBuffer::SetDepth(const size_t x, const size_t y, const float depth) const {
+void DepthBuffer::Set(const size_t x, const size_t y, const float depth) const {
     assert(x < width_ && y < height_ && data_ != nullptr);
     data_[x + y * width_] = depth;
 }
 
-float DepthBuffer::GetDepth(const size_t x, const size_t y) const {
+float DepthBuffer::Get(const size_t x, const size_t y) const {
     assert(x < width_ && y < height_ && data_ != nullptr);
     return data_[x + y * width_];
 }

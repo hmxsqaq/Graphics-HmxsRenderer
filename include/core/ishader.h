@@ -27,6 +27,11 @@ struct FragmentShaderInput {
     Vector3f &bc_clip;
 };
 
+struct FragmentShaderOutput {
+    Color color;
+    Vector3f normal;
+};
+
 struct Light {
     Vector3f direction;
     Vector3f intensity;
@@ -38,7 +43,9 @@ struct IShader {
     void NormalizeLights();
 
     virtual void VertexShader(const VertexShaderInput& in, Vertex& out) const = 0;
-    virtual bool FragmentShader(const FragmentShaderInput& in, Color& out) const = 0;
+    virtual bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const = 0;
+
+    void Deferred(const GBuffer &g_buffer, const FrameBuffer &frame_buffer) const;
 
     std::string name;
     Matrix4x4 model_matrix;
@@ -64,43 +71,49 @@ protected:
 struct FixedShader final :StandardVertexShader {
     FixedShader() : StandardVertexShader("Fixed") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct GrayShader final : StandardVertexShader {
     GrayShader() : StandardVertexShader("Gray") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct PhongShader final : StandardVertexShader {
     PhongShader() : StandardVertexShader("Phong") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct BlinnPhongShader final : StandardVertexShader {
     BlinnPhongShader() : StandardVertexShader("BlinnPhong") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct NormalShader final : StandardVertexShader {
     NormalShader() : StandardVertexShader("Normal") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct NormalTangentShader final : StandardVertexShader {
     NormalTangentShader() : StandardVertexShader("Tangent") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
+};
+
+struct DeferredShader final : StandardVertexShader {
+    DeferredShader() : StandardVertexShader("Deferred") { }
+
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 struct TestShader final : StandardVertexShader {
     TestShader() : StandardVertexShader("Test") { }
 
-    bool FragmentShader(const FragmentShaderInput& in, Color& out) const override;
+    bool Fragment(const FragmentShaderInput& in, FragmentShaderOutput &out) const override;
 };
 
 #endif //ISHADER_H
