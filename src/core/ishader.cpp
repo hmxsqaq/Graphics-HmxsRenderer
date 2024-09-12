@@ -10,25 +10,24 @@ void IShader::NormalizeLights() {
 }
 
 void IShader::Deferred(const GBuffer &g_buffer, const FrameBuffer &frame_buffer) const {
-    for (int x = 0; x < frame_buffer.width(); ++x) {
-        for (int y = 0; y < frame_buffer.height(); ++y) {
-            Color color = frame_buffer.color_buffer.GetPixel(x, y);
-            if (color[0] == 0 && color[1] == 0 && color[2] == 0) continue;
-            const Vector3f normal = g_buffer.normal.Get(x, y);
-            if (normal[0] == 0 && normal[1] == 0 && normal[2] == 0) continue;
-            float lightness = 0.0;
-            for (const auto& [direction, intensity] : lights) {
+#pragma omp parallel for
+    for (const auto& [direction, intensity] : lights) {
+        for (int x = 0; x < frame_buffer.width(); ++x) {
+            for (int y = 0; y < frame_buffer.height(); ++y) {
+                Color color = frame_buffer.color_buffer.GetPixel(x, y);
+                if (color[0] == 0 && color[1] == 0 && color[2] == 0) continue;
+
+                const Vector3f normal = g_buffer.normal.Get(x, y);
+                if (normal[0] == 0 && normal[1] == 0 && normal[2] == 0) continue;
+
                 const float diffuse = std::max(0.0f, normal * direction);
                 const Vector3f half = (direction + view_direction).Normalize() * -1;
                 const float specular = static_cast<float>(std::pow(std::max(0.0f, normal * half), 120));
-                lightness += diffuse + specular;
+                color = color * (diffuse + specular + ambient_light + 0.5f);
+                frame_buffer.color_buffer.SetPixel(x, y, color);
             }
-            lightness += ambient_light;
-            color = color * lightness;
-            frame_buffer.color_buffer.SetPixel(x, y, color);
         }
     }
-
 }
 
 void StandardVertexShader::VertexShader(const VertexShaderInput &in, Vertex &out) const {
