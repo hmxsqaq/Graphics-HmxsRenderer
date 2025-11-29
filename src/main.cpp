@@ -43,7 +43,7 @@ std::string GetUiText(const Scene &scene, const FrameTimer &timer) {
 }
 
 int main() {
-    Log::Instance().SetLogLevel(Log::Level::LOG_DEBUG);
+    Log::Instance().SetLogLevel(Log::Level::LOG_ERROR);
     Log::Instance().SetLogFile("output.log", std::ios::out);
 
     const std::vector<std::string> model_name_list = {
@@ -65,7 +65,6 @@ int main() {
     const auto normal_shader = std::make_shared<NormalShader>();
     const auto normal_tangent_shader = std::make_shared<NormalTangentShader>();
     const auto deferred_shader = std::make_shared<DeferredShader>();
-    // const auto test_shader = std::make_shared<TestShader>();
 
     const auto scene = std::make_shared<Scene>();
     scene->camera_obj = camera_obj;
@@ -77,8 +76,8 @@ int main() {
     // scene->shader_list.push_back(blinn_phong_shader);
     // scene->shader_list.push_back(normal_shader);
     // scene->shader_list.push_back(normal_tangent_shader);
-    scene->shader_list.push_back(deferred_shader);
-    scene->render_path = DEFERRED;
+    scene->shader_list.push_back(blinn_phong_shader);
+    scene->render_path = FORWARD;
     scene->auto_rotate = false;
 
     scene->lights.push_back(light1);
@@ -93,7 +92,7 @@ int main() {
     }
 
     Win32Wnd window("Hmxs", "HmxsRenderer");
-    window.SetTextFont("mononoki", 20);
+    window.SetTextFont("Consolas", 20);
     window.SetUserData(scene);
     window.RegisterKeyCallback(Callbacks::OnKeyPressed);
     window.RegisterMouseCallback(Callbacks::OnMousePressed);
