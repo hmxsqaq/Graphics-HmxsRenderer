@@ -33,10 +33,10 @@ public:
     void FlipHorizontally();
     void Clear(uint8_t value = 0) const;
 
-    [[nodiscard]] size_t width() const { return width_; }
-    [[nodiscard]] size_t height() const { return height_; }
-    [[nodiscard]] std::uint8_t bpp() const { return bpp_; }
-    [[nodiscard]] size_t size() const { return width_ * height_ * bpp_; }
+    [[nodiscard]] size_t width()    const { return width_; }
+    [[nodiscard]] size_t height()   const { return height_; }
+    [[nodiscard]] std::uint8_t bpp()    const { return bpp_; }
+    [[nodiscard]] size_t size()         const { return width_ * height_ * bpp_; }
     [[nodiscard]] const std::uint8_t* data() const { return data_.get(); }
     [[nodiscard]]       std::uint8_t* data()       { return data_.get(); }
 
@@ -63,9 +63,9 @@ public:
 
     void Clear(float value = std::numeric_limits<float>::max()) const;
 
-    [[nodiscard]] size_t width() const { return width_; }
-    [[nodiscard]] size_t height() const { return height_; }
-    [[nodiscard]] size_t size() const { return width_ * height_; }
+    [[nodiscard]] size_t width()    const { return width_; }
+    [[nodiscard]] size_t height()   const { return height_; }
+    [[nodiscard]] size_t size()     const { return width_ * height_; }
     [[nodiscard]] const float* data() const { return data_.get(); }
     [[nodiscard]]       float* data()       { return data_.get(); }
 
@@ -78,7 +78,8 @@ private:
 template <size_t N>
 class VectorBuffer {
 public:
-    VectorBuffer(const size_t width, const size_t height) : width_(width), height_(height), data_(std::make_unique<float[]>(width * height * N)) {
+    VectorBuffer(const size_t width, const size_t height)
+        : width_(width), height_(height), data_(std::make_unique<float[]>(width * height * N)) {
         Clear();
     }
 
@@ -106,9 +107,9 @@ public:
         std::fill_n(data_.get(), width_ * height_ * N, value);
     }
 
-    [[nodiscard]] size_t width() const { return width_; }
-    [[nodiscard]] size_t height() const { return height_; }
-    [[nodiscard]] size_t size() const { return width_ * height_ * N; }
+    [[nodiscard]] size_t width()    const { return width_; }
+    [[nodiscard]] size_t height()   const { return height_; }
+    [[nodiscard]] size_t size()     const { return width_ * height_ * N; }
     [[nodiscard]] const float* data() const { return data_.get(); }
     [[nodiscard]]       float* data()       { return data_.get(); }
 private:
@@ -125,8 +126,8 @@ struct FrameBuffer {
     [[nodiscard]] Matrix4x4 GetViewportMatrix() const;
     [[nodiscard]] static Matrix4x4 GetViewportMatrix(size_t x, size_t y, size_t w, size_t h);
 
-    [[nodiscard]] size_t width() const { return color_buffer.width(); }
-    [[nodiscard]] size_t height() const { return color_buffer.height(); }
+    [[nodiscard]] size_t width()    const { return color_buffer.width(); }
+    [[nodiscard]] size_t height()   const { return color_buffer.height(); }
 
     ColorBuffer color_buffer;
     DepthBuffer depth_buffer;

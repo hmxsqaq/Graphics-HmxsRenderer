@@ -3,7 +3,6 @@
 
 #include <array>
 #include <sstream>
-
 #include "vector.h"
 
 template<typename T, size_t N> struct Determinant;
@@ -157,11 +156,13 @@ struct Determinant {
     }
 };
 
+// specialization for 1x1 matrix
 template<typename T>
 struct Determinant<T, 1> {
     static T Calculate(const Matrix<T, 1, 1> &matrix) { return matrix[0][0]; }
 };
 
+// specialization for 2x2 matrix
 template<typename T>
 struct Determinant<T, 2> {
     static T Calculate(const Matrix<T, 2, 2> &matrix) {

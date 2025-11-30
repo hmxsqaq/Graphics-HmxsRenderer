@@ -3,6 +3,7 @@
 #include "utility/log.h"
 #include "scene.h"
 
+// Bresenham's line algorithm
 void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer) {
     bool steep = false;
     if (std::abs(p0[0] - p1[0]) < std::abs(p0[1] - p1[1])) {
@@ -31,6 +32,7 @@ void Renderer::DrawLine(Vector2f p0, Vector2f p1, const Color &color, const Colo
     }
 }
 
+// Draw model by rasterizing each triangle
 void Renderer::DrawModel(const Model &model,
                          const IShader &shader,
                          const FrameBuffer &frame_buffer,
@@ -50,12 +52,13 @@ void Renderer::DrawModel(const Model &model,
     }
 }
 
+// Key function: rasterize triangle, depth test, fragment shader, write to frame buffer
 void Renderer::RasterizeTriangle(const std::array<Vertex, 3> &triangle,
                                  const IShader &shader,
                                  const FrameBuffer &frame_buffer,
                                  const GBuffer &g_buffer,
                                  const RenderPath &render_path) {
-    // create bounding box
+    // create bounding box (AABB)
     Vector2s box_min = {std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max()};
     Vector2s box_max = {std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::min()};
     for (const auto &vertex : triangle) {
@@ -98,6 +101,7 @@ void Renderer::RasterizeTriangle(const std::array<Vertex, 3> &triangle,
     }
 }
 
+// Compute barycentric coordinates for point p with respect to triangle
 Vector3f Renderer::GetBarycentric2d(const std::array<Vertex, 3> &triangle, const Vector2f &p) {
     const float x0 = triangle[0].vertex_screen_space[0], y0 = triangle[0].vertex_screen_space[1];
     const float x1 = triangle[1].vertex_screen_space[0], y1 = triangle[1].vertex_screen_space[1];

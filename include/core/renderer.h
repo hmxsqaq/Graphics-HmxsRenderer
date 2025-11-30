@@ -7,8 +7,8 @@
 #include "buffer.h"
 #include "component-gameobject.h"
 #include "ishader.h"
-#include "maths/maths.h"
 
+// Renderer class handles drawing lines and models
 class Renderer {
 public:
     static void DrawLine(Vector2f p0, Vector2f p1, const Color &color, const ColorBuffer &buffer);
